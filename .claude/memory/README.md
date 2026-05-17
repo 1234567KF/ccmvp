@@ -1,0 +1,1 @@
+﻿# Memory System\n\n通用 IDE 适配版记忆系统。\n\n## 结构\n\n- project.json  项目级记忆（技术栈、架构决策、团队偏好）\n- session/  会话级记忆（每次对话摘要）\n- user/  用户级记忆（跨项目通用偏好）\n\n## 使用\n\n记忆由 skills 通过文件系统读写，无自动向量检索。\n需要检索时通过 grep 或关键词匹配。\n

@@ -1,0 +1,14 @@
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-YOUR_DEEPSEEK_API_KEY_HERE",
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro",
+    "CLAUDE_CODE_ALWAYS_THINKING": "0",
+    "CLAUDE_CODE_STREAM_DELAY": "0"
+  },
+  "model": "deepseek-v4-pro",
+  "outputStyle": "stream",
+  "viewMode": "verbose",
+  "theme": "dark",
+  "verbose": true
+}

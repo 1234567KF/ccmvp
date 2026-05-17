@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "currency": "¥",
+  "updated": "2026-05-17",
+  "source": "deepseek: https://api-docs.deepseek.com/quick_start/pricing | minimax: https://platform.minimaxi.com/docs/guides/pricing-paygo",
+  "note": "DeepSeek V4-Pro 75% discount valid until 2026/05/31 15:59 UTC. Prices below reflect discount.",
+  "models": [
+    {
+      "id": "deepseek-v4-pro",
+      "short": "pro",
+      "name": "DeepSeek V4-Pro",
+      "input_per_mtok": 3.13,
+      "output_per_mtok": 6.26,
+      "cache_read_per_mtok": 0.026,
+      "note": "原价$1.74/M输入,75%折扣后$0.435≈¥3.13/M; 缓存原价$0.0145,折扣后$0.003625≈¥0.026/M"
+    },
+    {
+      "id": "deepseek-v4-flash",
+      "short": "flash",
+      "name": "DeepSeek V4-Flash",
+      "input_per_mtok": 1.01,
+      "output_per_mtok": 2.02,
+      "cache_read_per_mtok": 0.020,
+      "note": "输入$0.14/M≈¥1.01/M, 缓存$0.0028/M≈¥0.02/M, 输出$0.28/M≈¥2.02/M (¥7.2/USD)"
+    },
+    {
+      "id": "kimi-k2.6",
+      "short": "kimi",
+      "name": "Kimi K2.6",
+      "input_per_mtok": 1.0,
+      "output_per_mtok": 4.0,
+      "cache_read_per_mtok": 1.0,
+      "note": "官方暂未发布缓存定价,暂用输入原价近似"
+    },
+    {
+      "id": "kimi-k2.5",
+      "short": "kimi25",
+      "name": "Kimi K2.5",
+      "input_per_mtok": 1.0,
+      "output_per_mtok": 4.0,
+      "cache_read_per_mtok": 1.0,
+      "note": "官方暂未发布缓存定价,暂用输入原价近似"
+    },
+    {
+      "id": "minimax-m2.5",
+      "short": "minimax",
+      "name": "MiniMax M2.5",
+      "input_per_mtok": 2.1,
+      "output_per_mtok": 8.4,
+      "cache_read_per_mtok": 0.21,
+      "note": "官方¥定价:输入¥2.1/M,缓存¥0.21/M,输出¥8.4/M"
+    },
+    {
+      "id": "sonnet",
+      "short": "sonnet",
+      "name": "Claude Sonnet 4",
+      "input_per_mtok": 21.6,
+      "output_per_mtok": 108.0,
+      "cache_read_per_mtok": 2.7,
+      "note": "$3/M输入≈¥21.6/M, $15/M输出≈¥108/M (¥7.2/USD)"
+    },
+    {
+      "id": "haiku",
+      "short": "haiku",
+      "name": "Claude Haiku 3.5",
+      "input_per_mtok": 1.8,
+      "output_per_mtok": 9.0,
+      "cache_read_per_mtok": 0.216,
+      "note": "$0.25/M输入≈¥1.8/M, $1.25/M输出≈¥9/M (¥7.2/USD)"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "mechanisms": [
+    {
+      "id": "lean_ctx",
+      "name": "lean-ctx 上下文压缩",
+      "description": "90+ 压缩模式，Shell + Claude Code 双通道 hook，CCP 跨会话持久化。将原始 prompt 压缩至 1-5%，节省 95-99% token。",
+      "source": "helpers/hooks + MCP tools (ctx_read/ctx_shell/ctx_search/ctx_tree)",
+      "measurable": true,
+      "measurement": "原始内容大小 - 压缩后内容大小",
+      "exclude_from_savings": false
+    },
+    {
+      "id": "l1_cache",
+      "name": "L1 共享前缀缓存",
+      "description": "所有技能/agent 的 system prompt 前 200-500 token 逐字相同，触发 DeepSeek KV 缓存命中。缓存命中时按缓存价格计费（Pro: ¥0.025/M vs ¥3/M）。",
+      "source": "rules/cache-optimization.md — 全局 System Prompt 统一策略",
+      "measurable": true,
+      "measurement": "共享前缀大小 × 调用次数（API 返回 cache_hit 字段确认）",
+      "exclude_from_savings": false
+    },
+    {
+      "id": "l2_warmup",
+      "name": "L2 长上下文预热",
+      "description": "首次请求预热 PRD/Spec 等长文档，后续请求命中 KV 缓存 checkpoint，避免首请求全价计费。",
+      "source": "helpers/cache-warmup.cjs + rules/cache-optimization.md",
+      "measurable": true,
+      "measurement": "预热文档 token 数 × (总请求数 - 1) — 预热额外成本已扣除",
+      "exclude_from_savings": false
+    },
+    {
+      "id": "l3_skill_stub",
+      "name": "L3 技能按需加载",
+      "description": "skill-loader 控制：非当前阶段技能仅保留元数据 stub（~25 tokens/技能），而非完整加载（平均 ~15K tokens/技能）。压缩率 88-96%。",
+      "source": "helpers/skill-loader.cjs + rules/cache-optimization.md",
+      "measurable": true,
+      "measurement": "非需要技能数 × 平均技能大小(15K) - stub 代价(25 × 技能数)",
+      "exclude_from_savings": false
+    },
+    {
+      "id": "ccp_skip",
+      "name": "CCP Skip — 阶段跳过",
+      "description": "claude-code-pro 技能：当变更文件 < 3 个时，跳过不必要的子阶段（编码/测试等），每跳过一段省 10K-15K tokens。",
+      "source": "skills/claude-code-pro/SKILL.md —  Token 高效调度器",
+      "measurable": true,
+      "measurement": "跳过的阶段数 × 每阶段估算 token (10K-15K)",
+      "exclude_from_savings": false
+    },
+    {
+      "id": "lambda_lang",
+      "name": "lambda-lang A2A 压缩",
+      "description": "Agent-to-Agent 原生通信语言：340+ 原子指令，7 域（a2a/evo/code/...），3x 压缩。将原生 JSON/自然语言 A2A 消息压缩至 1/3。",
+      "source": "skills/lambda-lang/SKILL.md —  Agent-to-Agent 原生通信语言",
+      "measurable": true,
+      "measurement": "原生消息大小 - lambda 压缩后大小",
+      "exclude_from_savings": false
+    },
+    {
+      "id": "model_switch",
+      "name": "模型切换（Pro↔Flash）",
+      "description": "model-router 将简单任务路由到 flash 模型（¥1/M）而非 pro 模型（¥3/M）。属于价格优化，非 Token 优化。",
+      "source": "skills/kf-model-router/model-router-hook.cjs",
+      "measurable": true,
+      "measurement": "flash 调用数 × (pro 单价 - flash 单价)",
+      "exclude_from_savings": true,
+      "exclude_reason": "用户明确要求：切换模型不算做节省 token。仅影响成本，不影响 Token 消耗量。"
+    }
+  ],
+  "categories": {
+    "token_saving": ["lean_ctx", "l1_cache", "l2_warmup", "l3_skill_stub", "ccp_skip", "lambda_lang"],
+    "cost_only": ["model_switch"]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "1.3",
+  "description": "Multivendor model registry for kf-model-router. Updated 2026-05: DeepSeek V4-Pro/V4-Flash, Kimi K2.6/K2.5, MiniMax M2.5.",
+  "providers": [
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "baseUrl": "https://api.deepseek.com/v1",
+      "envKey": "DEEPSEEK_API_KEY",
+      "healthEndpoint": "/models",
+      "adapter": "deepseek",
+      "adapterPath": "skills/kf-model-router/providers/",
+      "rateLimit": {
+        "capacity": 16,
+        "fillRate": 0.26,
+        "maxQueueTime": 5000,
+        "refillInterval": 1000
+      },
+      "models": [
+        {
+          "id": "deepseek-v4-pro",
+          "family": "pro",
+          "description": "DeepSeek V4-Pro — 百万上下文，Agentic Coding开源最佳，推理/数学/STEM顶尖，支持思考模式",
+          "capabilities": ["deep-reasoning", "math", "complex-code", "agent", "architecture", "planning", "tool-use", "long-context"],
+          "costPer1KInput": 3.0,
+          "costPer1KOutput": 15.0,
+          "cacheHitCostPer1KInput": 0.025,
+          "supportsCache": true,
+          "priority": 2,
+          "defaultFor": ["math", "complex-code", "agent", "architecture", "planning", "deep-reasoning"],
+          "providerModelId": "deepseek-v4-pro"
+        },
+        {
+          "id": "deepseek-v4-flash",
+          "family": "flash",
+          "description": "DeepSeek V4-Flash — 百万上下文，接近Pro的推理能力，更快捷经济，支持思考模式",
+          "capabilities": ["code", "agent", "review", "qa", "docs", "chat", "testing", "ui-prototype", "simple-qa", "tool-use", "long-context"],
+          "costPer1KInput": 1.0,
+          "costPer1KOutput": 5.0,
+          "cacheHitCostPer1KInput": 0.02,
+          "supportsCache": true,
+          "priority": 10,
+          "defaultFor": ["coding", "testing", "chat", "simple-qa", "tool-use", "docs"],
+          "providerModelId": "deepseek-v4-flash"
+        }
+      ]
+    },
+    {
+      "id": "kimi",
+      "name": "Kimi",
+      "baseUrl": "https://api.moonshot.cn/v1",
+      "envKey": "KIMI_API_KEY",
+      "healthEndpoint": "/models",
+      "adapter": "kimi",
+      "adapterPath": "skills/kf-model-router/providers/",
+      "rateLimit": {
+        "capacity": 20,
+        "fillRate": 0.33,
+        "maxQueueTime": 5000,
+        "refillInterval": 1000
+      },
+      "models": [
+        {
+          "id": "kimi-k2.6",
+          "family": "pro",
+          "description": "Kimi K2.6 — 代码生成/SWE-bench顶级，Agent工具调用稳定性强，长文本/前端/多模态",
+          "capabilities": ["code", "agent", "frontend", "long-context", "docs", "chat", "review", "simple-qa", "ui-prototype", "bug-debug", "architecture", "tool-use"],
+          "costPer1KInput": 1.0,
+          "costPer1KOutput": 4.0,
+          "cacheHitCostPer1KInput": null,
+          "supportsCache": false,
+          "priority": 5,
+          "defaultFor": ["bug-debug", "ui-prototype", "review", "frontend", "agent"],
+          "providerModelId": "kimi-k2-0606"
+        },
+        {
+          "id": "kimi-k2.5",
+          "family": "flash",
+          "description": "Kimi K2.5 — 长文本读写/文档生成/中文对话，多模态理解，Agent Swarm编排",
+          "capabilities": ["long-context", "docs", "chat", "simple-qa", "frontend", "ui-prototype", "translation", "creative-writing"],
+          "costPer1KInput": 1.0,
+          "costPer1KOutput": 4.0,
+          "cacheHitCostPer1KInput": null,
+          "supportsCache": false,
+          "priority": 8,
+          "defaultFor": ["docs", "simple-qa", "translation", "creative-writing"],
+          "providerModelId": "kimi-k2.5"
+        }
+      ]
+    },
+    {
+      "id": "minimax",
+      "name": "MiniMax",
+      "baseUrl": "https://api.minimax.chat/v1",
+      "envKey": "MINIMAX_API_KEY",
+      "healthEndpoint": "/models",
+      "adapter": "minimax",
+      "adapterPath": "skills/kf-model-router/providers/",
+      "rateLimit": {
+        "capacity": 24,
+        "fillRate": 0.4,
+        "maxQueueTime": 5000,
+        "refillInterval": 1000
+      },
+      "models": [
+        {
+          "id": "minimax-m2.5",
+          "family": "pro",
+          "description": "MiniMax M2.5 — SWE-Bench 80.2%行业SOTA，编程/Agent/工具调用顶尖，100TPS极速，成本极低",
+          "capabilities": ["code", "agent", "tool-use", "complex-code", "architecture", "review", "testing", "long-context", "chat", "docs"],
+          "costPer1KInput": 0.3,
+          "costPer1KOutput": 2.4,
+          "cacheHitCostPer1KInput": null,
+          "supportsCache": false,
+          "priority": 3,
+          "defaultFor": ["complex-code", "agent", "architecture", "review", "testing"],
+          "providerModelId": "minimax-m2.5"
+        }
+      ]
+    }
+  ],
+  "routingFallback": {
+    "strategy": "cost-first",
+    "defaultProvider": "deepseek",
+    "defaultModel": "deepseek-v4-flash"
+  },
+  "compatMappings": {
+    "pro": "deepseek-v4-pro",
+    "flash": "deepseek-v4-flash",
+    "sonnet": "kimi-k2.6",
+    "opus": "deepseek-v4-pro"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "providers": [
+    {
+      "name": "deepseek",
+      "apiKey": "${DEEPSEEK_API_KEY}",
+      "baseUrl": "https://api.deepseek.com/v1",
+      "anthropic_url": "https://api.deepseek.com/anthropic",
+      "models": [
+        {
+          "id": "deepseek-v4-pro",
+          "family": "pro",
+          "description": "DeepSeek V4-Pro — 百万上下文，Agentic Coding开源最佳，推理/数学/STEM顶尖",
+          "capabilities": ["deep-reasoning", "math", "complex-code", "agent", "architecture", "planning", "tool-use", "long-context"],
+          "costPer1KInput": 3.0,
+          "costPer1KOutput": 15.0,
+          "supportsCache": true,
+          "priority": 2,
+          "defaultFor": ["math", "complex-code", "agent", "architecture", "planning", "deep-reasoning"],
+          "adapter": "deepseek"
+        },
+        {
+          "id": "deepseek-v4-flash",
+          "family": "flash",
+          "description": "DeepSeek V4-Flash — 百万上下文，接近Pro推理，缓存降低成本",
+          "capabilities": ["code", "agent", "review", "qa", "docs", "chat", "testing", "ui-prototype", "simple-qa", "tool-use", "long-context"],
+          "costPer1KInput": 1.0,
+          "costPer1KOutput": 5.0,
+          "supportsCache": true,
+          "priority": 10,
+          "defaultFor": ["coding", "testing", "chat", "simple-qa", "tool-use", "docs"],
+          "adapter": "deepseek"
+        }
+      ]
+    },
+    {
+      "name": "kimi",
+      "apiKey": "${KIMI_API_KEY}",
+      "baseUrl": "https://api.kimi.com/coding",
+      "anthropic_url": "https://api.kimi.com/coding",
+      "models": [
+        {
+          "id": "kimi-for-coding",
+          "family": "pro",
+          "description": "Kimi for Coding — 代码生成/SWE-bench顶级，Agent工具调用稳定性强",
+          "capabilities": ["code", "agent", "frontend", "long-context", "docs", "chat", "review", "simple-qa", "ui-prototype", "bug-debug", "architecture", "tool-use"],
+          "costPer1KInput": 1.0,
+          "costPer1KOutput": 4.0,
+          "supportsCache": false,
+          "priority": 5,
+          "defaultFor": ["bug-debug", "ui-prototype", "review", "frontend", "agent"],
+          "adapter": "kimi"
+        },
+        {
+          "id": "kimi-for-planning",
+          "family": "flash",
+          "description": "Kimi for Planning — 长文本/规划/文档生成",
+          "capabilities": ["long-context", "docs", "chat", "simple-qa", "frontend", "ui-prototype", "translation", "creative-writing"],
+          "costPer1KInput": 1.0,
+          "costPer1KOutput": 4.0,
+          "supportsCache": false,
+          "priority": 8,
+          "defaultFor": ["docs", "simple-qa", "translation", "creative-writing"],
+          "adapter": "kimi"
+        }
+      ]
+    },
+    {
+      "name": "minimax",
+      "apiKey": "${MINIMAX_API_KEY}",
+      "baseUrl": "https://api.minimax.chat/v1",
+      "anthropic_url": "https://api.minimaxi.com/anthropic",
+      "models": [
+        {
+          "id": "minimax-m2.5",
+          "family": "pro",
+          "description": "MiniMax M2.5 — SWE-Bench 80.2%行业SOTA，编程/Agent/工具调用顶尖，100TPS极速，成本极低",
+          "capabilities": ["code", "agent", "tool-use", "complex-code", "architecture", "review", "testing", "long-context", "chat", "docs"],
+          "costPer1KInput": 0.3,
+          "costPer1KOutput": 2.4,
+          "supportsCache": false,
+          "priority": 3,
+          "defaultFor": ["complex-code", "agent", "architecture", "review", "testing"],
+          "adapter": "minimax"
+        }
+      ]
+    }
+  ]
+}

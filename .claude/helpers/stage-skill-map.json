@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1.0",
+  "description": "阶段→技能映射表。单点真相源，所有 routing/inject/gate 操作都读此文件。",
+  "stages": {
+    "0": {
+      "name": "需求对齐",
+      "description": "需求澄清、对齐理解、Spec 基线锁定",
+      "required": ["kf-alignment", "kf-spec", "kf-mvp"],
+      "recommended": [],
+      "contextual": [],
+      "agent_skills": {}
+    },
+    "1": {
+      "name": "方案评审 / 架构设计",
+      "description": "技术调研、多方案比选、架构决策、降级链设计",
+      "required": ["kf-alignment", "kf-web-search", "kf-exa-code"],
+      "recommended": ["kf-scrapling", "kf-opencli"],
+      "contextual": ["kf-spec", "kf-grant-research"],
+      "agent_skills": {
+        "前端专家": ["react-expert", "vue-expert", "angular-architect", "nextjs-developer", "typescript-pro", "flutter-expert", "javascript-pro", "vue-expert-js"],
+        "后端专家": ["python-pro", "golang-pro", "java-architect", "fastapi-expert", "django-expert", "spring-boot-engineer", "nestjs-expert", "rust-engineer", "cpp-pro", "csharp-developer", "kotlin-specialist", "php-pro", "rails-expert", "dotnet-core-expert", "laravel-specialist", "swift-expert"],
+        "基础设施专家": ["cloud-architect", "kubernetes-specialist", "terraform-engineer", "devops-engineer", "sre-engineer", "database-optimizer", "postgres-pro"],
+        "数据专家": ["ml-pipeline", "pandas-pro", "spark-engineer", "rag-architect", "fine-tuning-expert"],
+        "架构师": ["microservices-architect", "api-designer", "architecture-designer", "graphql-architect", "websocket-engineer"],
+        "文档专家": ["code-documenter", "spec-miner"]
+      }
+    },
+    "2": {
+      "name": "编码实现",
+      "description": "功能实现、UI 原型、结构化提取",
+      "required": ["kf-spec", "kf-mvp"],
+      "recommended": ["kf-image-editor", "kf-exa-code", "kf-langextract", "kf-evolution"],
+      "contextual": ["kf-ui-prototype-generator"],
+      "agent_skills": {
+        "前端专家": ["react-expert", "vue-expert", "angular-architect", "nextjs-developer", "typescript-pro", "flutter-expert", "javascript-pro", "react-native-expert", "vue-expert-js"],
+        "后端专家": ["python-pro", "golang-pro", "java-architect", "fastapi-expert", "django-expert", "spring-boot-engineer", "nestjs-expert", "rust-engineer", "cpp-pro", "csharp-developer", "kotlin-specialist", "php-pro", "rails-expert", "dotnet-core-expert", "laravel-specialist", "swift-expert", "embedded-systems", "game-developer"],
+        "基础设施专家": ["postgres-pro", "sql-pro", "database-optimizer", "cli-developer"],
+        "数据专家": ["pandas-pro", "ml-pipeline", "rag-architect", "fine-tuning-expert"],
+        "全栈开发者": ["fullstack-guardian", "feature-forge", "shopify-expert", "wordpress-pro", "salesforce-developer", "mcp-developer"]
+      }
+    },
+    "3": {
+      "name": "自动化测试",
+      "description": "浏览器自动化、测试编写、安全审计",
+      "required": ["kf-browser-ops"],
+      "recommended": [],
+      "contextual": [],
+      "agent_skills": {
+        "QA 专家": ["playwright-expert", "test-master", "chaos-engineer", "monitoring-expert", "debugging-wizard"],
+        "安全专家": ["secure-code-guardian", "security-reviewer", "fullstack-guardian"]
+      }
+    },
+    "4": {
+      "name": "代码审查",
+      "description": "代码审查图谱、质量检查、安全审查",
+      "required": ["kf-code-review-graph"],
+      "recommended": [],
+      "contextual": ["kf-skill-design-expert"],
+      "agent_skills": {
+        "Code Review 专家": ["code-reviewer", "security-reviewer", "code-documenter"],
+        "安全专家": ["secure-code-guardian", "fullstack-guardian"],
+        "QA 专家": ["test-master", "playwright-expert"]
+      }
+    },
+    "5": {
+      "name": "汇总交付",
+      "description": "方案融合、文档输出、最终产物交付",
+      "required": [],
+      "recommended": ["kf-image-editor", "kf-langextract"],
+      "contextual": ["kf-ui-prototype-generator", "code-documenter", "spec-miner"],
+      "agent_skills": {}
+    }
+  },
+  "always_on_skills": {
+    "description": "所有阶段始终可用，不依赖阶段路由表",
+    "skills": ["kf-go", "kf-model-router", "kf-saver", "kf-monitor", "kf-token-tracker", "lambda-lang", "claude-code-pro"]
+  },
+  "global_skills": {
+    "description": "所有阶段按 agent_for 角色可用",
+    "skills": ["kf-go", "kf-add-skill", "kf-doc-consistency", "kf-web-search", "kf-exa-code"]
+  }
+}

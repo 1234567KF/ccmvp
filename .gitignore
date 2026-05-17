@@ -1,0 +1,25 @@
+# AI编程智驾本地配置（含 API 密钥，不提交）
+settings.local.json
+settings.local.yaml
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+.secret
+
+# Node.js
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Flow 运行时数据（会话级，不提交）
+.claude-flow/data/
+.claude-flow/mvp-state/
+.claude-flow/perf/
+
+# 系统
+.DS_Store
+Thumbs.db
