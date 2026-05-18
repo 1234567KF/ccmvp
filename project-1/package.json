@@ -1,0 +1,49 @@
+{
+  "name": "project-1",
+  "version": "1.0.0",
+  "type": "module",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "tsx watch server/src/index.ts",
+    "dev:client": "vite --config client/vite.config.ts client/",
+    "build": "tsc -p server/tsconfig.json && vite build --config client/vite.config.ts client/",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
+    "@hono/node-server": "^2.0.2",
+    "@hono/zod-validator": "^0.8.0",
+    "ant-design-vue": "^4.2.6",
+    "axios": "^1.16.1",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.19",
+    "mermaid": "^11.15.0",
+    "pinia": "^3.0.4",
+    "sql.js": "^1.14.1",
+    "uuid": "^14.0.0",
+    "vue": "^3.5.34",
+    "vue-router": "^4.6.4",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.8.0",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.4.10",
+    "concurrently": "^9.2.1",
+    "drizzle-kit": "^0.31.10",
+    "happy-dom": "^20.9.0",
+    "tsx": "^4.22.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13",
+    "vitest": "^4.1.6"
+  }
+}
