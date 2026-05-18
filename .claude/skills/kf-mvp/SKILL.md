@@ -14,14 +14,17 @@ metadata:
   interaction: multi-turn
 integrated-skills:
   - kf-alignment
-  - kf-prd-generator
+  - kf-prd-deep
   - kf-spec
   - kf-browser-ops
+  - kf-diagnose       # 调试循环
   - kf-annotate
   - kf-data-ingest    # URL/凭据输入预处理
+  - grill-with-docs   # 需求澄清前置
+  - kf-architecture-deepening  # 架构审视
 graph:
   dependencies:
-    - target: kf-prd-generator
+    - target: kf-prd-deep
       type: workflow
     - target: kf-spec
       type: workflow
@@ -29,7 +32,7 @@ graph:
 
 # kf-mvp — 原型系统（MVP 快速通道）
 
-> **核心**：设计阶段三队多视角竞争 → 人类决策 → 单队 TDD 落地。输出可演示、可宣讲的原型系统。
+> **核心**：设计阶段多视角竞争 → 人类决策 → 单队 TDD 落地。输出可演示、可宣讲的原型系统。
 
 ---
 
@@ -39,8 +42,8 @@ graph:
 |------|------|------|
 | `--team red` | OFF | 指定红队（激进创新）做 TDD |
 | `--team blue` | **ON** | 蓝队（稳健工程）做 TDD — 默认 |
-| `--team green` | OFF | 指定绿队（安全保守）做 TDD |
-| `--no-mock` | OFF | 禁用 Mock，接入真实第三方（⚠️ 仅演示环境） |
+| `--team green` | OFF | 指定绿队（安全保守）做 TDD — 启用三队模式 |
+| `--no-mock` | OFF | 禁用 Mock，接入真实第三方（仅演示环境） |
 | `--no-prototype` | OFF | 跳过 Phase 6 原型生成 |
 
 ---
@@ -50,25 +53,25 @@ graph:
 ### 流水线总览
 
 ```
-Phase 0        Phase 1        Phase 2     Phase 3       Phase 4      Phase 4.5       Phase 5               Phase 6            Phase 7
-技术栈确认  →  三队需求澄清  →  PRD生成  →  三队Spec生成  →  人类决策  →  SDD任务拆分  →  单队模块驱动TDD    →  暗门注释注入    →  使用说明
-(主Agent)      (主Agent)      (主Agent)    (主Agent)      (用户)       (主Agent)       (主Agent+子Agent)     (kf-annotate)      (主Agent)
-    │              │              │            │             │             │                  │                  │              │
-    ▼              ▼              ▼            ▼             ▼             ▼                  ▼                  ▼              ▼
- 技术栈确认   三队对齐记录    PRD.md    三队spec.md   选定队伍      spec.md           代码+模块TDD报告    暗门注入页面      USAGE.md
-                                                                     tasks/<module>.md   progress.md更新    + 宣讲看板
-                                                                     progress.md
+Phase 0        Phase 1        Phase 2          Phase 3       Phase 4      Phase 4.5       Phase 5               Phase 6            Phase 7
+技术栈确认  →  双队需求澄清  →  PRD生成(→kf-prd-deep)  →  双队Spec生成  →  人类决策  →  SDD任务拆分  →  单队模块驱动TDD    →  暗门注释注入    →  使用说明
+(主Agent)      (主Agent)      (主Agent)         (主Agent)      (用户)       (主Agent)       (主Agent+子Agent)     (主Agent自动挂载)  (主Agent)
+    |              |              |                |             |             |                  |                  |              |
+    v              v              v                v             v             v                  v                  v              v
+ 技术栈确认   双队对齐记录    PRD.md         双队spec.md   选定队伍      spec.md           代码+模块TDD报告    注释组件+宣讲看板  USAGE.md
+                                                                          tasks/<module>.md   progress.md更新
+                                                                          progress.md
 ```
 
 ### 阶段依赖链
 
 ```
 Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 4.5 → Phase 5 → Phase 6 → Phase 7
-  │         │         │         │         │         │           │         │           │
-  ▼         ▼         ▼         ▼         ▼         ▼           ▼         ▼           ▼
+  |         |         |         |         |         |           |         |           |
+  v         v         v         v         v         v           v         v           v
 Gate 0    Gate 1    Gate 2    Gate 3    Gate 4   Gate 4.5    Gate 5    Gate 6        Gate 7
-                                              (任务拆分      (模块TDD   (暗门注释    (USAGE
-                                               完整性验证)    全部GREEN)  注入完成)     自检通过)
+                                               (任务拆分      (模块TDD   (暗门注释    (USAGE
+                                                完整性验证)    全部GREEN)  注入完成)     自检通过)
 ```
 
 ---
@@ -87,9 +90,11 @@ Load `references/context-engineering.md` for full command reference on:
 ## Context Collection — 启动时
 
 1. 读取 `memory/mvp-generation-log.md` 最近 3 条（历史技术栈选择）
-2. 检查 `安装或更新/docs/mvp技术栈.md` → 存在则作为技术栈默认值
-3. 扫描工作区依赖文件（`package.json` 等）了解现有栈
-4. 若用户提供 `.xlsx` → 检测是否为 SDD 模板 → 是则先走 `kf-prd-generator`
+2. 检查 `docs/CONTEXT.md` → 存在则读取领域词汇文本作为后续参考
+3. 检查 `docs/adr/` 目录 → 存在则读取最近 ADR 了解架构决策
+4. 检查 `安装或更新/docs/mvp技术栈.md` → 存在则作为技术栈默认值
+5. 扫描工作区依赖文件（`package.json` 等）了解现有栈
+6. 若用户提供 `.xlsx` → 检测是否为 SDD 模板 → 是则先走 `kf-prd-deep`
 
 ---
 
@@ -97,10 +102,11 @@ Load `references/context-engineering.md` for full command reference on:
 
 ### 默认技术栈（极简原则）
 
-后端：Node.js + Hono + Drizzle + SQLite（better-sqlite3）
+后端：Node.js + Hono + Drizzle + SQLite（better-sqlite3）[Turso 可选]
 前端：Vue 3 + Vite + **UI 框架待选**（见下方 UI 框架推荐）
 第三方：全部 Mock
 部署：`npm run dev` 一键启动，零外部服务依赖
+数据库：SQLite 本地开发（默认），Turso（边缘 SQLite）云端部署只需改 `DATABASE_URL` 一行 .env，零代码改动
 
 **极简约束**（不引入）：缓存策略 | 并发控制 | 性能优化 | 安全加固（JWT 除外）| 日志系统 | 监控告警
 
@@ -137,7 +143,7 @@ Load `references/context-engineering.md` for full command reference on:
 
 | 输入类型 | 处理方式 |
 |---------|---------|
-| `.xlsx` SDD 模板 | → 调用 `kf-prd-generator` 生成 PRD.md |
+| `.xlsx` SDD 模板 | → 调用 `kf-prd-deep` 生成 PRD.md |
 | `.xlsx` 非 SDD | → 读取原始数据，作为需求参考 |
 | 口述 / 文本 | → 直接进入 Phase 1 澄清 |
 | 已有 PRD.md | → 跳过 Phase 2 |
@@ -150,7 +156,23 @@ Load `references/context-engineering.md` for full command reference on:
 
 ---
 
-## Phase 1 — 三队需求澄清（Inversion + 多视角）
+## Phase 1 — 双队需求澄清（Inversion + 多视角 + CONTEXT 初始化）
+
+### 领域词汇初始化
+Phase 1 启动时 MUST 检查 `docs/CONTEXT.md` 是否存在：
+- **已存在** → 读取术语表，作为后续所有 AI 输出的领域语言基础
+- **不存在** → 提示用户初始化，提供模板建议（术语表 | 关系 | 歧义澄清），用户确认后创建
+
+后续所有 Phase 的 AI 输出 MUST 使用 `docs/CONTEXT.md` 定义的术语，禁止自创或混用同义词。
+
+### 需求澄清（grill-with-docs 可选）
+如果需求描述模糊或存在矛盾，可调用 `grill-with-docs` 技能进行深度需求澄清：
+- 逐条术语审计，消除歧义
+- 设计树逐级走查，暴露隐藏假设
+- 决策即时写入 `docs/CONTEXT.md`
+- 适用场景：复杂业务领域、多角色协作、多业务线交织
+
+> 简明的需求可直接进入下方需求收集，跳过 grill 流程。
 
 ### 需求收集
 一次性问清核心问题：
@@ -160,21 +182,21 @@ Load `references/context-engineering.md` for full command reference on:
 - Q4: 明确不做什么？
 - Q5: 涉及哪些第三方服务？（全部 Mock）
 
-### 三队对齐（串行，文件隔离）
-三队（红/蓝/绿）依次执行需求对齐，产出独立对齐文件：
-- 红队（激进创新）→ `red-00-alignment.md`
-- 蓝队（稳健工程）→ `blue-00-alignment.md`
-- 绿队（安全保守）→ `green-00-alignment.md`
+### 三队对齐（串行，合并为单文件）
+三队（红/蓝/绿）依次执行需求对齐，合并产出至单文件：
+- 红队（激进创新）→ 需求理解 + 边界场景挖掘
+- 蓝队（稳健工程）→ 核心路径 + 技术约束
+- 绿队（安全保守）→ 异常假设 + 降级策略
 
-每队 MUST 产出：需求理解、边界确认、技术约束、补充假设清单。
+每队 MUST 产出：需求理解、边界确认、技术约束、补充假设清单。合并后写入 `docs/alignment.md`。
 
-### Gate 1 — 三队对齐记录全部产出后进入 Phase 2。
+### Gate 1 — `docs/alignment.md` 存在且包含三队视角后进入 Phase 2。
 
 ---
 
 ## Phase 2 — PRD 生成
 
-调用 `kf-prd-generator`，以完整 Phase 1→2 流程生成结构化 PRD.md。
+调用 `kf-prd-deep`，以完整 Phase 1→2 流程生成结构化 PRD.md。
 
 若输入已足够清晰，可跳过完整流程直接生成轻量 PRD。
 
@@ -182,17 +204,19 @@ Load `references/context-engineering.md` for full command reference on:
 
 ---
 
-## Phase 3 — 三队 Spec 生成
+## Phase 3 — 双队 Spec 生成（可选加第三队）
 
-### 三队并行 Spec（严格隔离）
+### 双队并行 Spec（严格隔离，绿队可选）
 
-三队基于同一份 PRD.md 并行生成 Spec，**技术栈铁律强制后端栈**（Node.js+Hono+Drizzle+SQLite，不可选），**前端 UI 框架使用 Phase 0 选定的框架**。
+蓝队 + 红队基于同一份 PRD.md 并行生成 Spec，**技术栈铁律强制后端栈**（Node.js+Hono+Drizzle+SQLite，不可选），**前端 UI 框架使用 Phase 0 选定的框架**。
 
-> **框架传递**：三队子 Agent 启动时从 `memory/mvp-generation-log.md` 读取 `UI Framework:` 条目获取选定框架。若无记录则使用默认 Ant Design Vue。
+如需绿队（安全保守）视角，启动时添加 `--team green` 启用三队模式。
+
+> **框架传递**：子 Agent 启动时从 `memory/mvp-generation-log.md` 读取 `UI Framework:` 条目获取选定框架。若无记录则使用默认 Ant Design Vue。
 
 **隔离规则**：
 - 输入只读：只能读 `docs/prd.md` + `docs/CONTEXT.md`
-- 输出隔离：红→`red-*`，蓝→`blue-*`，绿→`green-*`
+- 输出隔离：红→`red-*`，蓝→`blue-*`（绿→`green-*` 可选）
 - 上下文隔离：子 Agent 独立会话，不共享上下文
 
 **每队 Spec 必须包含**：业务架构方案、数据模型、API 契约、业务状态流转、任务拆解。
@@ -203,13 +227,22 @@ Load `references/context-engineering.md` for full command reference on:
 
 ### Step 3.5 — 对抗质疑清单
 
-在 Phase 4 之前自动生成 `challenge-inventory.md`，从方案完整性/实现风险/边界场景/一致性/MVP 适配度五维度分析三队方案差异。
+在 Phase 4 之前自动生成 `challenge-inventory.md`，从方案完整性/实现风险/边界场景/一致性/MVP 适配度五维度分析双队方案差异（启用三队时则分析三队）。
 
-### Gate 3 — 三队 Spec 全部通过质量门禁。
+### Gate 3 — 双队 Spec 全部通过质量门禁（启用三队时要求三队）。
 
 ---
 
 ## Phase 4 — 人类决策
+
+### 决策前 Grill（可选）
+
+在用户决策前，可调用 `grill-with-docs` 挑战最终方案：
+- 针对方案中的关键假设进行压力测试
+- 暴露隐藏的 trade-off 和风险
+- 辅助用户做出更知情的决策
+
+> 方案清晰无误时可跳过此步骤。
 
 ### 呈现对比
 
@@ -220,7 +253,7 @@ Load `references/context-engineering.md` for full command reference on:
 询问用户选择哪队方案落地。默认蓝队。
 
 ```
-可选：A. 红队（激进创新） B. 蓝队（稳健工程⭐默认） C. 绿队（安全保守） D. 融合
+可选：A. 红队（激进创新） B. 蓝队（稳健工程默认） C. 融合（如启用第三队则显示 D. 绿队）
 ```
 
 ### Gate 4 — 用户 MUST 明确选择后方可进入 Phase 4.5。
@@ -242,37 +275,39 @@ Load `references/context-engineering.md` for full command reference on:
 
 ## Phase 5 — 单队 TDD 开发
 
-> **核心原则**：单队执行，融合三队思想生成多视角测试用例。自循环直到全路径通过。Mock 第三方服务但业务逻辑真实落地。
+> **核心原则**：单队执行，融合多视角生成测试用例。Tracer Bullet 模式：一次一个垂直切片，快速获得反馈循环。自循环直到全路径通过。Mock 第三方服务但业务逻辑真实落地。
 
 Load `references/phase-5-stages.md` for detailed stage execution:
 
 | Stage | 内容 | 产出 | 门控 |
 |-------|------|------|------|
-| 0.5 — 多视角测试设计 | 红蓝绿三视角融合，五维度生成尽可能多的测试用例 | `{team}-05-tests/` + `{team}-05-test-report.md` | 全部 RED ✅ |
-| 2 — TDD 微循环自循环 | 主 Agent 按 `progress.md` 调度，子 Agent RED→GREEN→REFACTOR | 代码 + `{team}-02-tdd-cycle-{module}-*` | 全部 GREEN ✅ |
-| 2.5 — 编译门禁 | tsc + vite build + 组件校验 + ESM 检查（P0 阻断） | `{team}-25-build-report.md` | PASS ✅ |
-| 3 — 浏览器自动化测试 | kf-browser-ops 全路径端到端验证 | `{team}-03-browser-report.md` + screenshots | Happy Path 全部通过 ✅ |
-| 4 — 清空DB+经典流程回放 | `POST /api/system/reset` + `scripts/replay-classic-flows.js` | `scripts/replay-classic-flows.js` + replay-report | 全部通过 ✅ |
+| 0.5 — Tracer Bullet 多视角测试 | 红蓝绿三视角融合，识别最关键的垂直切片，一次一个测试 → 实现 → 通过（先核心路径，再边界，再异常） | `{team}-05-tests/` + `progress.md` 跟踪 cycle | 核心路径 GREEN |
+| 2 — TDD 微循环自循环 | 主 Agent 按 `progress.md` 调度，子 Agent RED→GREEN→REFACTOR | 代码 + `{team}-02-tdd-cycle-{module}-*` | 全部 GREEN |
+| 2.5 — 编译门禁 | tsc + vite build + 组件校验 + ESM 检查（P0 阻断） | `{team}-25-build-report.md` | PASS |
+| 3 — 浏览器自动化测试 | kf-browser-ops 全路径端到端验证 | `{team}-03-browser-report.md` + screenshots | Happy Path 全部通过 |
+| 4 — 清空DB+经典流程回放 | `POST /api/system/reset` + `scripts/replay-classic-flows.js` | `scripts/replay-classic-flows.js` + replay-report | 全部通过 |
 
 ### Gate 5 — Stage 4 全部通过后方可进入 Phase 6。
 
 ---
 
-## Phase 6 — 暗门注释注入（委托 kf-annotate）
+## Phase 6 — 暗门注释注入（前端全局组件自挂载）
 
-委托 `kf-annotate` 完成全部工作，根据项目类型选择模式：
+主 Agent 直接实现注释系统，根据项目类型选择模式：
 
 ### Vue SPA 模式（默认，Vue 3 + 选定 UI 框架项目）
 
 1. 读取 `docs/prd.md` 和 `docs/spec.md`，为每个路由页面构建 L0-L6 注释数据
-2. 创建/更新 `src/client/annotations/annotation-data.ts` — 每页的 L0(概览)/L1(字段)/L2(规则)/L3(状态机)/L4(API)/L6(待决策)
-3. 创建/更新 `src/client/components/AnnotationDrawer.vue` — 使用 Drawer + Tabs 分页渲染（UI 框架对应组件）
+2. 创建/更新 `frontend/src/annotations/annotation-data.ts` — 每页的 L0(概览)/L1(字段)/L2(规则)/L3(状态机)/L4(API)/L6(待决策)
+3. 创建/更新 `frontend/src/components/AnnotationDrawer.vue` — 使用 Drawer + Tabs 分页渲染（UI 框架对应组件）
 4. 在 `App.vue` 绑定 Ctrl+M 快捷键直接开/关抽屉（无「注释模式」中间状态）
 5. 更新 `docs/USAGE.md` 记录快捷键
 
 **交互**：`Ctrl+M` 直接开/关注释抽屉 | 6 个 tab 分页（概览/字段/规则/状态机/API/待决策）
 
-### 静态 HTML 模式（prototypes/ 目录下的 HTML 文件）
+**UI 框架映射**：根据 Phase 0 选定的框架使用对应 Drawer/Tabs 组件。参考 `kf-annotate` 技能的 Vue SPA 模式 UI 框架映射表。
+
+### 静态 HTML 模式（prototypes/ 目录下的 HTML 文件，参考 kf-annotate 静态模式）
 
 1. Phase A (Scan) — 读取页面 + PRD + Spec，建立映射
 2. Phase B (Inject) — 注入 JSON 数据块 + `Ctrl+M` 切换脚本
@@ -280,7 +315,7 @@ Load `references/phase-5-stages.md` for detailed stage execution:
 
 ### Gate 6 — 暗门注释完整性验证
 
-必须通过 kf-annotate 定义的 Gate 检查规则：
+必须通过以下 Gate 检查规则：
 
 | ID | 检查项 | P0/P1 |
 |----|--------|-------|
@@ -292,7 +327,7 @@ Load `references/phase-5-stages.md` for detailed stage execution:
 | AN-10 | 文档同步（USAGE.md 记录快捷键） | P1 |
 
 **阻断规则**：P0 任一未通过 → 退回修复；P1 超过 3 项 → 告警
-**验证命令**：详见 kf-annotate SKILL.md Gate 章节
+**验证命令**：`grep -c "route:" frontend/src/annotations/annotation-data.ts` | `grep "ctrlKey.*key.*'m'" frontend/src/App.vue`
 
 ---
 
@@ -306,19 +341,19 @@ MUST 生成 `USAGE.md`，全部使用 copy-paste 可执行命令：
 | 预置账号 | 每个角色至少 1 个账号，密码 `123456` | 覆盖所有角色 |
 | 主线流程 | 至少 3 条，每步 4-8 步，含具体示例数据 | 覆盖 PRD 所有核心场景 |
 | FAQ | 至少 4 个问答 | 含 Ctrl+M 暗门说明 |
-| 功能验证矩阵 | ✅/⚠️/❌ 标注 5 大维度 L0-L4 成熟度 | 暗门/角色/审批/状态/Mock |
+| 功能验证矩阵 | / 标注 5 大维度 L0-L4 成熟度 | 暗门/角色/审批/状态/Mock |
 | 成熟度评估 | L0 概念 → L1 交互 → L2 连通 → L3 闭环 → L4 健壮 | 避免期望落差 |
 
 ### Gate 7 — USAGE.md 自检全部通过后方可交付。
 
 **最终交付仪式**：
 ```
-🎉 MVP 交付完成 — <任务名>
-├─ 总 Phase: 8/8 ✅
-├─ 总 Token: <输入> + <输出>
-├─ 上下文压缩率: <skill-loader 报告>
-├─ 产物清单: <看板「交付产物」区>
-└─ 启动验证: npm run dev → <验证状态>
+MVP 交付完成 — <任务名>
+|- 总 Phase: 8/8
+|- 总 Token: <输入> + <输出>
+|- 上下文压缩率: <skill-loader 报告>
+|- 产物清单: <看板「交付产物」区>
+|- 启动验证: npm run dev → <验证状态>
 ```
 
 ---
@@ -326,24 +361,28 @@ MUST 生成 `USAGE.md`，全部使用 copy-paste 可执行命令：
 ## 输出规范
 
 ```
-项目根目录/
-├── src/                    # Phase 5 代码产物
-│   ├── server/             # Hono + Drizzle + SQLite 后端
-│   ├── client/             # Vue 3 + Vite 前端
-│   └── services/           # Mock 服务（支付/短信/存储/推送）
-├── scripts/
-│   └── replay-classic-flows.js  # Phase 5 Stage 4 经典流程回放脚本
-├── prototypes/             # Phase 6 原型产物
-│   └── index.html          # 带暗门注释的原型（单页或多页）
-├── docs/
-│   ├── prd.md              # Phase 2 / Phase 4.5 — 需求文档
-│   ├── spec.md             # Phase 4.5 — 详细设计（选定队伍）
-│   ├── red-spec.md / blue-spec.md / green-spec.md  # Phase 3
-│   ├── tasks/<module>.md   # Phase 4.5 — 模块任务清单
-│   ├── tasks/progress.md   # Phase 4.5 — 总体进度追踪
-│   └── USAGE.md            # Phase 7 — 使用说明
-├── {team}-05-tests/        # Phase 5 Stage 0.5 测试文件
-└── {team}-00-alignment.md  # Phase 1 对齐记录
+项目根目录（前后端解耦）/
+|-- backend/                # Phase 5 后端产物（Hono + Drizzle + SQLite，独立部署）
+|-- frontend/               # Phase 5 前端产物（Vue 3 + Vite，独立部署）
+|-- mocks/                  # 统一 Mock 服务（支付/短信/存储/推送，可选）
+|-- scripts/
+|   +-- replay-classic-flows.js  # Phase 5 Stage 4 经典流程回放脚本
+|-- prototypes/             # Phase 6 原型产物
+|   +-- index.html          # 带暗门注释的原型（单页或多页）
+|-- docs/
+|   |-- CONTEXT.md          # Phase 1 — 领域词汇表
+|   |-- alignment.md        # Phase 1 — 三队对齐记录（合并单文件）
+|   |-- prd.md              # Phase 2 — 需求文档（由 kf-prd-deep 生成）
+|   |-- spec.md             # Phase 4.5 — 详细设计（选定队伍）
+|   |-- red-spec.md / blue-spec.md  # Phase 3 — 双队 Spec（启用三队时含 green-spec.md）
+|   |-- tasks/<module>.md   # Phase 4.5 — 模块任务清单
+|   |-- tasks/progress.md   # Phase 4.5 — 总体进度追踪
+|   |-- adr/                # 架构决策记录（可选，按需创建）
+|   +-- USAGE.md            # Phase 7 — 使用说明
+|-- {team}-05-tests/        # Phase 5 Stage 0.5 测试文件
++-- .claude/
+    |-- memory/
+    +-- mvp-generation-log.md  # 历史记录
 ```
 
 ---
@@ -352,20 +391,22 @@ MUST 生成 `USAGE.md`，全部使用 copy-paste 可执行命令：
 
 1. **MUST NOT 引入生产级复杂度** — 不做缓存/队列/限流/日志/监控/安全加固（JWT 除外）。
 2. **第三方 MUST Mock** — 签名一致可切换。Mock 模拟返回值，不跳过业务逻辑。
-3. **加强 TDD 多视角全覆盖** — 融合红蓝绿三队视角，五维度生成测试用例。自循环直到全路径 GREEN。
+3. **加强 TDD 多视角全覆盖** — 融合红蓝绿三队视角，五维度生成测试用例。Tracer Bullet 模式自循环直到全路径 GREEN。
 4. **原型 MUST 带暗门注释** — L0-L6 强制产出，与 PRD 高度一致。
-5. **人类决策替代裁判** — 三队方案呈现对比表，用户选择。默认蓝队。
-6. **技术栈铁律** — 后端栈 Hono + Drizzle + SQLite + Vue 3 + Vite **不可协商**。前端 UI 框架由推荐引擎+用户决策选定（Ant Design Vue / Element Plus / Arco Design / Vant / shadcn/vue / Tailwind CSS），选定后不可混用。三队在此栈内竞争业务方案。
+5. **人类决策替代裁判** — 双队方案呈现对比表，用户选择。默认蓝队。
+6. **技术栈铁律** — 后端栈 Hono + Drizzle + SQLite + Vue 3 + Vite **不可协商**。前端 UI 框架由推荐引擎+用户决策选定（Ant Design Vue / Element Plus / Arco Design / Vant / shadcn/vue / Tailwind CSS），选定后不可混用。队伍在此栈内竞争业务方案。
 7. **MUST NOT 跳过 Gate** — 每个 Phase Gate 必须通过方可进入下一阶段。
 8. **测试验证 MUST 脚本化** — `test-gate.mjs` / `build-gate.mjs`，禁止 AI 口头判断。
-9. **每个 Gate MUST 物化产物** — 编译报告/测试报告/浏览器报告等。progress.md 📎 链接物化文件。
+9. **每个 Gate MUST 物化产物** — 编译报告/测试报告/浏览器报告等。progress.md 链接物化文件。
 10. **修复 MUST 触发回归验证链** — `regression-runner.mjs` 从当前阶段重新验证。
 11. **业务路径选择器 MUST 内置** — 多状态分支提供悬浮 toggle 切换业务失败路径。
 12. **编码阶段优选 Kimi 2.6** — 不可用时降级 DeepSeek V4 Flash。
-13. **交付 MUST 包含 USAGE.md** — 含启动命令、账号、≥3 条流程、FAQ、验证矩阵、成熟度评估。
+13. **交付 MUST 包含 USAGE.md** — 含启动命令、账号、>=3 条流程、FAQ、验证矩阵、成熟度评估。
 14. **上下文 MUST 按需加载** — Phase 切换时调 `skill-loader.cjs`。非当前阶段技能降为 meta stub。
 15. **多 Agent 状态 MUST 可视化** — Gate 通过 / Agent spawn+done / `status` 时输出看板。
 16. **记忆持久化** — MVP 完成后写摘要到 `memory/mvp-generation-log.md`。
+17. **领域词汇 MUST 统一** — AI 输出 MUST 使用 `docs/CONTEXT.md` 定义的术语，禁止自创同义词。
+18. **架构决策 MUST 持久化** — 重大技术决策（如状态机选型、数据库选择）写入 `docs/adr/`。
 
 ---
 
