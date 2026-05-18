@@ -98,11 +98,40 @@ Load `references/context-engineering.md` for full command reference on:
 ### 默认技术栈（极简原则）
 
 后端：Node.js + Hono + Drizzle + SQLite（better-sqlite3）
-前端：Vue 3 + Vite（运营Web：Ant Design Vue / H5：Vant）
+前端：Vue 3 + Vite + **UI 框架待选**（见下方 UI 框架推荐）
 第三方：全部 Mock
 部署：`npm run dev` 一键启动，零外部服务依赖
 
 **极简约束**（不引入）：缓存策略 | 并发控制 | 性能优化 | 安全加固（JWT 除外）| 日志系统 | 监控告警
+
+### UI 框架推荐与选择
+
+> 根据项目类型和客户端类型，从 6 个 Vue 生态框架中推荐最优方案。
+> 参考文件：`references/ui-framework-recommendation.md`
+
+**AI 自动判断维度**：
+
+| 维度 | 取值 |
+|------|------|
+| 项目类型 | `admin` / `public-web` / `e-commerce` / `saas` / `mobile-h5` / `landing` / `tool` / `social` / `dashboard` |
+| 客户端类型 | `web` / `h5` / `hybrid` |
+
+**推荐速查**（关注 Web 端时）：
+
+| 场景 | 推荐框架 | 备选 |
+|------|---------|------|
+| 企业后台 / B端管理 | **Ant Design Vue** | Element Plus / Arco Design |
+| 通用管理端 / 电商 | **Element Plus** | Ant Design Vue |
+| 现代品牌化 Web | **Tailwind CSS** | shadcn/vue |
+| 自定义设计 + 预置组件 | **shadcn/vue** | Tailwind CSS |
+| H5 移动端 | **Vant** | Tailwind CSS |
+
+**执行流程**：
+1. AI 判断项目类型 + 客户端类型 → 推荐框架
+2. 用户确认或选择其他框架
+3. 记录到 `memory/mvp-generation-log.md`
+
+> **按需加载**：选定后仅在 Phase 5（编码阶段）加载对应组件清单。Phase 0-4 只记名称，零 token 开销。
 
 ### 输入源处理
 
@@ -114,9 +143,9 @@ Load `references/context-engineering.md` for full command reference on:
 | 已有 PRD.md | → 跳过 Phase 2 |
 | **URL/账号密码（现网分析）** | → 调用 `kf-data-ingest` 抓取并持久化到 `.data/` |
 
-### Gate 0 — 技术栈 MUST 确认后方可进入 Phase 1。
+### Gate 0 — 技术栈 + UI 框架 MUST 确认后方可进入 Phase 1。
 
-**追踪**：完成后运行 `node {IDE_ROOT}/helpers/perf/perf-tracker.cjs auto-log --phase phase-0 --role ai --model <当前模型> --input <估算> --cache 0 --output <估算> --summary "Phase 0: 技术栈确认"`
+**追踪**：完成后运行 `node {IDE_ROOT}/helpers/perf/perf-tracker.cjs auto-log --phase phase-0 --role ai --model <当前模型> --input <估算> --cache 0 --output <估算> --summary "Phase 0: 技术栈确认 + UI框架: {框架名}"`
 **可视化**：`node {IDE_ROOT}/helpers/agent-visual-dashboard.cjs --phase phase-0 --percent 100`
 
 ---
@@ -157,7 +186,9 @@ Load `references/context-engineering.md` for full command reference on:
 
 ### 三队并行 Spec（严格隔离）
 
-三队基于同一份 PRD.md 并行生成 Spec，**技术栈铁律强制**（Vue3+Hono+Drizzle+SQLite，不可选）。
+三队基于同一份 PRD.md 并行生成 Spec，**技术栈铁律强制后端栈**（Node.js+Hono+Drizzle+SQLite，不可选），**前端 UI 框架使用 Phase 0 选定的框架**。
+
+> **框架传递**：三队子 Agent 启动时从 `memory/mvp-generation-log.md` 读取 `UI Framework:` 条目获取选定框架。若无记录则使用默认 Ant Design Vue。
 
 **隔离规则**：
 - 输入只读：只能读 `docs/prd.md` + `docs/CONTEXT.md`
@@ -231,11 +262,11 @@ Load `references/phase-5-stages.md` for detailed stage execution:
 
 委托 `kf-annotate` 完成全部工作，根据项目类型选择模式：
 
-### Vue SPA 模式（默认，Vue 3 + Ant Design Vue 项目）
+### Vue SPA 模式（默认，Vue 3 + 选定 UI 框架项目）
 
 1. 读取 `docs/prd.md` 和 `docs/spec.md`，为每个路由页面构建 L0-L6 注释数据
 2. 创建/更新 `src/client/annotations/annotation-data.ts` — 每页的 L0(概览)/L1(字段)/L2(规则)/L3(状态机)/L4(API)/L6(待决策)
-3. 创建/更新 `src/client/components/AnnotationDrawer.vue` — 使用 a-drawer + a-tabs 分页渲染
+3. 创建/更新 `src/client/components/AnnotationDrawer.vue` — 使用 Drawer + Tabs 分页渲染（UI 框架对应组件）
 4. 在 `App.vue` 绑定 Ctrl+M 快捷键直接开/关抽屉（无「注释模式」中间状态）
 5. 更新 `docs/USAGE.md` 记录快捷键
 
@@ -324,7 +355,7 @@ MUST 生成 `USAGE.md`，全部使用 copy-paste 可执行命令：
 3. **加强 TDD 多视角全覆盖** — 融合红蓝绿三队视角，五维度生成测试用例。自循环直到全路径 GREEN。
 4. **原型 MUST 带暗门注释** — L0-L6 强制产出，与 PRD 高度一致。
 5. **人类决策替代裁判** — 三队方案呈现对比表，用户选择。默认蓝队。
-6. **技术栈铁律** — Hono + Drizzle + SQLite + Vue 3 + Vite，不可协商。三队在此栈内竞争方案。
+6. **技术栈铁律** — 后端栈 Hono + Drizzle + SQLite + Vue 3 + Vite **不可协商**。前端 UI 框架由推荐引擎+用户决策选定（Ant Design Vue / Element Plus / Arco Design / Vant / shadcn/vue / Tailwind CSS），选定后不可混用。三队在此栈内竞争业务方案。
 7. **MUST NOT 跳过 Gate** — 每个 Phase Gate 必须通过方可进入下一阶段。
 8. **测试验证 MUST 脚本化** — `test-gate.mjs` / `build-gate.mjs`，禁止 AI 口头判断。
 9. **每个 Gate MUST 物化产物** — 编译报告/测试报告/浏览器报告等。progress.md 📎 链接物化文件。
@@ -343,12 +374,14 @@ MUST 生成 `USAGE.md`，全部使用 copy-paste 可执行命令：
 | 文件 | 加载时机 | 用途 |
 |------|---------|------|
 | `references/mvp-tech-stack.md` | Phase 0 | 技术栈详细规范 |
+| `references/ui-framework-recommendation.md` | Phase 0 Step 0.2 | UI 框架推荐引擎 + 6 框架档案 |
+| `references/ui-templates/{选定框架}/components.md` | Phase 5 | 选定框架的组件清单（按需加载） |
 | `references/phase-5-stages.md` | Phase 5 | 详细阶段执行（Stage 0.5-4 + Mock） |
 | `references/context-engineering.md` | Phase 切换 | skill-loader / dashboard / perf-tracker 命令 |
 | `references/harness-gates.md` | Gate 验证 | Gate 验证命令表 |
 | `references/gotchas.md` | 全过程 | 项目特有陷阱 |
 | `references/mock-strategy.md` | Phase 5 | Mock 签名规范与模板 |
 | `references/esm-scaffold.md` | Phase 0 / Stage 2.5 | ESM 脚手架 |
-| `references/component-inventory.md` | Stage 2.5 | UI 组件清单 |
+| `references/component-inventory.md` | Stage 2.5 | UI 组件清单索引（多框架） |
 | `references/shell-compatibility.md` | Phase 0 | Shell 跨平台参考 |
 | `{IDE_ROOT}/rules/mvp-coding-checklist.md` | Stage 2 | 编码错误检查清单 |

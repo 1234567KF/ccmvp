@@ -7,14 +7,14 @@
 
 ## Vue SPA 模式（TypeScript 数据文件）
 
-> 适用于 Vue 3 + Ant Design Vue 项目。注释数据定义在 `annotation-data.ts` 中。
+> 适用于 Vue 3 + 选定 UI 框架项目。注释数据定义在 `annotation-data.ts` 中。
 > 完整示例见 `kf-annotate SKILL.md` 的 Vue SPA 模式章节。
 
 ### 文件位置
 
 ```
 src/client/annotations/annotation-data.ts   ← L0-L6 TypeScript 类型定义 + 每页数据
-src/client/components/AnnotationDrawer.vue  ← a-drawer + a-tabs 渲染
+src/client/components/AnnotationDrawer.vue  ← Drawer + Tabs 渲染（选定框架组件）
 src/App.vue                                 ← Ctrl+M 快捷键绑定
 ```
 

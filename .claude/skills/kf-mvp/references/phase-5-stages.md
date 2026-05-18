@@ -120,10 +120,14 @@ TDD 只测逻辑不测编译。此阶段未通过不得进入 Stage 3。
 node {IDE_ROOT}/helpers/build-gate.mjs \
   --tsconfig ./tsconfig.json \
   --build-cmd "npm run build" \
+  --framework <ui-framework> \
   --component-inventory {IDE_ROOT}/skills/kf-mvp/references/component-inventory.md \
   --esm-check \
   --output {team}-25-build-report.md
 ```
+
+**`--framework` 参数**：使用 Phase 0 选定的 UI 框架名（如 `antd`, `element-plus`, `arco`, `vant`, `shadcn`, `tailwind`）。
+从 `memory/mvp-generation-log.md` 读取 `UI Framework:` 条目获取，默认 `antd`。
 
 **四项检查**：TypeScript 编译 | 前端构建 | 组件存在性 | ESM 兼容性
 

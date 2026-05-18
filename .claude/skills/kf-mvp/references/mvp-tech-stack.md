@@ -54,8 +54,8 @@ server/
 |------|------|------|------|
 | 框架 | Vue 3 | 3.4+ | Composition API |
 | 构建 | Vite | 5.x | 快速 HMR |
-| UI 组件（Web） | Ant Design Vue | 4.x | 企业级后台 |
-| UI 组件（H5） | Vant | 4.x | 移动端 |
+| UI 组件（Web） | {{UI_WEB_FRAMEWORK}} | {{UI_WEB_VERSION}} | 由推荐引擎 + 用户决策选定（见 ui-framework-recommendation.md） |
+| UI 组件（H5） | {{UI_H5_FRAMEWORK}} | {{UI_H5_VERSION}} | 同上 |
 | 路由 | Vue Router | 4.x | SPA 路由 |
 | 状态管理 | Pinia | 2.x | Vue 3 官方推荐 |
 | HTTP 客户端 | Axios | 1.x | 请求封装 |

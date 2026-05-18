@@ -31,14 +31,16 @@ graph:
 
 | 模式 | 适用场景 | 实现方式 |
 |------|---------|---------|
-| **Vue SPA 模式** | Vue 3 + Ant Design Vue 项目 | `annotation-data.ts` 数据 + `AnnotationDrawer.vue` 抽屉组件 |
+| **Vue SPA 模式** | Vue 3 + 选定 UI 框架项目 | `annotation-data.ts` 数据 + `AnnotationDrawer.vue` 抽屉组件 |
 | **静态 HTML 模式** | 纯 HTML 原型页面 (`prototypes/`) | JSON 数据块注入 `</body>` 前 + 渲染脚本 |
 
 ---
 
 ## Vue SPA 模式（推荐）
 
-> 适用于 kf-mvp 默认技术栈（Vue 3 + Ant Design Vue + Vite）的项目。
+> 适用于 kf-mvp 技术栈（Vue 3 + 选定 UI 框架 + Vite）的项目。
+> UI 框架由 kf-mvp Phase 0 选定（参考 `references/ui-framework-recommendation.md`），
+> 记录在 `memory/mvp-generation-log.md`。本技能通过该记录感知框架选择。
 
 ### 架构
 
@@ -47,6 +49,22 @@ src/client/annotations/annotation-data.ts   ← L0-L6 注释数据定义
 src/client/components/AnnotationDrawer.vue  ← 抽屉渲染组件
 src/App.vue                                 ← Ctrl+M 快捷键绑定
 ```
+
+### UI 框架组件映射
+
+Phase 0 选定的框架决定了 Drawer 和 Tabs 的具体组件。以下为各框架的对应关系：
+
+| 框架 | Drawer 组件 | Tabs 组件 | import 来源 |
+|------|------------|----------|------------|
+| **Ant Design Vue** | `<a-drawer>` | `<a-tabs>` / `<a-tab-pane>` | `ant-design-vue` |
+| **Element Plus** | `<el-drawer>` | `<el-tabs>` / `<el-tab-pane>` | `element-plus` |
+| **Arco Design** | `<a-drawer>` | `<a-tabs>` / `<a-tab-pane>` | `@arco-design/web-vue` |
+| **Vant** (H5) | `<van-popup>` + `position="right"` | `<van-tabs>` / `<van-tab>` | `vant` |
+| **shadcn/vue** | `<Sheet>` (from `radix-vue`) | `<Tabs>` / `<TabsContent>` / `<TabsList>` / `<TabsTrigger>` | `radix-vue` |
+| **Tailwind CSS** | 纯 CSS 抽屉（`fixed + translate-x`） | 纯 CSS tab（`v-if` 切换） | 无第三方依赖 |
+
+> **自动判断**：Phase 6 启动时从 `memory/mvp-generation-log.md` 读取 `UI Framework:` 条目，
+> 若无记录则默认 Ant Design Vue。
 
 ### 数据层 (annotation-data.ts)
 
@@ -115,10 +133,12 @@ interface AnnotationL6 {
 
 ### 抽屉组件 (AnnotationDrawer.vue)
 
-- 使用 Ant Design Vue `<a-drawer>` + `<a-tabs>` 实现
+- 使用选定 UI 框架的 Drawer + Tabs 组件实现（见上方 UI 框架组件映射表）
 - 每个层级一个 tab 页：概览(L0) | 字段(L1) | 规则(L2) | 状态机(L3) | API(L4) | 待决策(L6)
 - 无数据的 tab 页自动隐藏（v-if 控制）
 - 通过 `visible` prop + `update:visible` emit 实现 v-model 双向绑定
+
+**模板示例**（以 Ant Design Vue 为例，其他框架见映射表替换组件标签名）：
 
 ```vue
 <a-drawer v-model:open="open" title="暗门注释" placement="right" width="500">
@@ -146,7 +166,8 @@ if ((e.ctrlKey || e.metaKey) && e.key === 'm') {
 **关键约束**：
 - 禁止"注释模式"中间状态 — Ctrl+M 直接控制抽屉 visible，不设 mode flag
 - 禁止浮动按钮和模式指示条 — 仅通过快捷键交互
-- 禁止外部 CSS/JS 依赖 — 使用项目已有的 Ant Design Vue 组件
+- 禁止外部 CSS/JS 依赖 — 使用项目已有的 UI 框架组件
+- 使用选定框架的组件（参照上方 UI 框架组件映射表），禁止混用其他框架组件
 
 ### 执行步骤
 
@@ -197,7 +218,7 @@ Phase A: 扫描（Scan）      Phase B: 注入（Inject）      Phase C: 看板�
 | AN-06 | L4 API 契约 | 有后端交互的页标注 L4.endpoints | 对应页面 l4 含 API 定义 | P2 |
 | AN-07 | Ctrl+M 快捷键 | App.vue 中绑定 handleKeydown | 页面含暗门抽屉脚本 | P0 |
 | AN-08 | 无注释模式残留 | 无 annMode/mode 等中间态概念 | 无 mode indicator bar | P1 |
-| AN-09 | 抽屉使用 tabs | AnnotationDrawer 使用 a-tabs 分页 | 抽屉脚本含标签页逻辑 | P1 |
+| AN-09 | 抽屉使用 tab 分页 | AnnotationDrawer 使用 Tabs 组件分页（根据选定框架） | 抽屉脚本含标签页逻辑 | P1 |
 | AN-10 | 文档同步 | `docs/USAGE.md` 记录 Ctrl+M 快捷键 | 同左 | P1 |
 
 **阻断规则**：P0 任一未通过 → 退回修复；P1 超过 3 项 → 告警但可继续

@@ -97,12 +97,16 @@ Gather project context automatically:
 
 A. MVP 模式（快速 Demo）
    后端：Node.js + Express + SQLite（better-sqlite3，单文件零配置）
-   前端：Vue 3 + Vite（运营Web：Ant Design Vue / H5：Vant）
+   前端：Vue 3 + Vite（UI 框架由推荐引擎+用户决策选定，见下面说明）
    第三方：全部 Mock（签名一致，可一键切真实服务）
    部署：本机 npm run dev，零外部服务依赖
    特点：本地 npm run dev 一键启动，无需安装 MySQL 等外部服务
          Demo 阶段优势 — 单文件数据库自动创建，同步 API 简洁
          后续切 MySQL 只需换 Drizzle/Knex driver，SQL 无需改动
+
+**UI 框架选择说明**：
+- 若本技能由 **kf-mvp 调用**（Phase 0 → Phase 3）：UI 框架已在 Phase 0 选定，记录在 `memory/mvp-generation-log.md`。读取该文件获取选定框架（默认 Ant Design Vue）。
+- 若 **独立使用**：根据项目类型从 6 框架中推荐（admin→Ant Design Vue, e-commerce→Element Plus, h5→Vant, brand→Tailwind/shadcn 等），用户确认后写入记录。
 
 B. 指定技术栈模式
    由你指定前后端技术栈、数据库、部署方式等
@@ -110,7 +114,7 @@ B. 指定技术栈模式
 请选择 A 或 B：
 ```
 
-- **选 A（MVP 模式）**：使用 `mvp技术栈.md` 定义的技术栈作为默认值，后续 Spec 的技术方案按此生成。PRD 第 8 章「技术约束」中自动标注 Mock 策略（第三方全部 Mock，签名一致可切换），Spec 第 4 章「架构约束」中注明 Demo→生产演进路径（SQLite → MySQL，Mock → 真实服务）
+- **选 A（MVP 模式）**：使用 `mvp技术栈.md` 定义的技术栈作为默认值，后续 Spec 的技术方案按此生成。UI 框架优先读取 `memory/mvp-generation-log.md` 中的选定记录（由 kf-mvp Phase 0 写入），若无记录则按项目类型推荐。PRD 第 8 章「技术约束」中自动标注 Mock 策略（第三方全部 Mock，签名一致可切换），Spec 第 4 章「架构约束」中注明 Demo→生产演进路径（SQLite → MySQL，Mock → 真实服务）
 - **选 B（指定技术栈模式）**：进一步询问用户的技术栈选择（前后端框架、数据库、UI组件库等），记录后在 Spec 中体现
 
 ### Gate 0 — Tech stack MUST be confirmed before proceeding to Step 1.

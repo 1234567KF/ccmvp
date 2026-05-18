@@ -26,3 +26,7 @@ Thumbs.db
 
 # 本地示例项目（由 ccmvp 框架生成，不提交）
 project-1/
+
+# 本地开发文件（远程已删除，本地保留）
+wecode/
+wecode-prd/

@@ -10,7 +10,7 @@
 | Gate 3 | `node {IDE_ROOT}/helpers/harness-gate-check.cjs --stage phase3 --required-sections "## 技术方案" "## 数据模型" "## API 契约"` | 三队 Spec 缺失 | 回退修复 |
 | Gate 4 | `node {IDE_ROOT}/helpers/harness-gate-check.cjs --stage phase4` | `docs/spec.md` 未生成 | 等用户决策 |
 | Gate 4.5 | `node {IDE_ROOT}/helpers/harness-gate-check.cjs --stage phase4_5` | 任务/进度文件缺失 | 回退补充 |
-| Gate 2.5 | `node {IDE_ROOT}/helpers/build-gate.mjs --tsconfig ./tsconfig.json --build-cmd "npm run build" --component-inventory {IDE_ROOT}/skills/kf-mvp/references/component-inventory.md --esm-check --output {team}-25-build-report.md` | 编译失败/组件校验失败/ESM 不兼容 | 回退 Stage 2 修复 → 重新编译 |
+| Gate 2.5 | `node {IDE_ROOT}/helpers/build-gate.mjs --tsconfig ./tsconfig.json --build-cmd "npm run build" --framework <ui-framework> --component-inventory {IDE_ROOT}/skills/kf-mvp/references/component-inventory.md --esm-check --output {team}-25-build-report.md` | 编译失败/组件校验失败/ESM 不兼容 | 回退 Stage 2 修复 → 重新编译 |
 | Gate 5 (TDD) | `node {IDE_ROOT}/helpers/test-gate.mjs --cmd "npm test" --expected-pass-rate 100 --output {team}-05-test-report.md` | 通过率 < 100% | 继续 TDD 微循环 |
 | Gate 5 (浏览器) | `kf-browser-ops` 端到端验证 | Happy Path 失败 / P0 错误 > 0 | 回退 Stage 2 → `regression-runner.mjs` |
 | Gate 5 (回放) | `node scripts/replay-classic-flows.js` + `kf-browser-ops` | 任一流程回放失败 | 回退 Stage 2 |

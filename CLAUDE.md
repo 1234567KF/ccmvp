@@ -40,7 +40,7 @@ node .claude/helpers/harness-gate-check.cjs --stage <phase0|phase1|...|phase7>
 node .claude/helpers/tdd-gate-check.cjs --stage 2 --team blue
 
 # 编译门禁（Stage 2.5）
-node .claude/helpers/build-gate.mjs --tsconfig ./tsconfig.json --build-cmd "npm run build" --component-inventory .claude/skills/kf-mvp/references/component-inventory.md --esm-check --output blue-25-build-report.md
+node .claude/helpers/build-gate.mjs --tsconfig ./tsconfig.json --build-cmd "npm run build" --framework <antd|element-plus|arco|vant|shadcn|tailwind> --component-inventory .claude/skills/kf-mvp/references/component-inventory.md --esm-check --output blue-25-build-report.md
 
 # 测试门禁
 node .claude/helpers/test-gate.mjs --cmd "npm test" --expected-pass-rate 100 --output blue-05-test-report.md
