@@ -1,22 +1,28 @@
 ---
 name: kf-alignment
-description: 对齐工作流 — "懂"原则。动前谈理解打算，动后谈diff。确保 AI 和用户在同一认知层面。触发词："对齐"、"/alignment"、"说下你的理解"、"谈下打算"、"说下diff"。
+description: >-
+  Load when user asks for alignment, understanding confirmation, or action
+  review — before action (explain understanding and plan) or after action (show
+  diff and decisions). Triggers: "对齐", "/alignment", "说下你的理解",
+  "谈下打算", "说下diff", 理解确认, 复盘review.
 metadata:
   principle: 懂
   source: AICoding原则.docx
-recommended_model: pro
+  pattern: inversion
+  recommended_model: pro
+  interaction: multi-turn
 graph:
   dependencies:
     - target: kf-spec
-      type: dependency  # Spec 驱动需对齐理解
+      type: dependency
     - target: kf-prd-generator
-      type: dependency  # PRD 产出需对齐确认
+      type: dependency
     - target: kf-code-review-graph
-      type: dependency  # 审查报告需对齐
+      type: dependency
     - target: kf-ui-prototype-generator
-      type: dependency  # 原型需对齐需求
+      type: dependency
     - target: kf-scrapling
-      type: dependency  # 抓取结果需对齐
+      type: dependency
 
 ---
 
@@ -200,6 +206,18 @@ C. [方案名] — [一行说明]，后果：[选 C 会怎样]
 ```
 
 或在规则中配置：每次 Write/Edit 后提醒执行 `node {IDE_ROOT}/helpers/alignment-hook.cjs check`。
+
+---
+
+## Iron Rules
+
+1. **MUST NOT 跳过对齐即执行** — 动前未对齐时 MUST 先输出理解+打算，禁止直接开工
+2. **MUST NOT 开放提问** — interactive 模式下 MUST 给出 2-4 个具体选项，禁止问"你觉得呢？"
+3. **MUST 记录假设分级** — CRITICAL 级歧义 MUST 转化为结构化选择题
+4. **MUST NOT 重复提问** — 已确认的决策不再重复讨论（铁律 4）
+5. **MUST 完成动后复盘** — 每个任务完成后 MUST 输出 diff 复盘
+
+---
 
 ## Harness 反馈闭环（铁律 3）
 

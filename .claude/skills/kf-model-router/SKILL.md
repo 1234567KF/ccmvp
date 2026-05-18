@@ -1,28 +1,31 @@
 ﻿---
 name: kf-model-router
-description: |
-  全自动多模型智能路由引擎 — "省+稳+准"三位一体。多供应商动态调度（DeepSeek Pro/Flash + MiniMax 2.7 + Kimi K2.5），
-  语义任务分类 + 加权评分选优 + 断路器 + 降级链 + 令牌桶限流 + 密钥隔离。零配置，自动触发，用户无感。
-  触发词："模型路由"、"切换模型"、"省模式"、"智能路由"、"模型调度"、"多模型路由"、"smart router"、"安全路由"、"safe router"、"断路器"、"限流"。
-triggers:
-  - 模型路由
-  - 切换模型
-  - 省模式
-  - 智能路由
-  - 模型调度
-  - 多模型路由
-  - smart router
-  - 路由调度
-  - 多模型
-  - 安全路由
-  - safe router
-  - 断路器
-  - 限流
+description: >-
+  Load when user asks for model routing, smart model switching, or circuit
+  breaker control. Auto-triggered on every tool call via PreToolUse hook — zero
+  config, transparent user experience. Multi-provider scheduling (DeepSeek
+  Pro/Flash, MiniMax 2.7, Kimi K2.5) with semantic task classification + weighted
+  scoring + circuit breaker + fallback chain + token bucket + key isolation.
+  Triggers: "模型路由", "切换模型", "省模式", "智能路由", "模型调度",
+  "多模型路由", "smart router", "安全路由", "断路器", "限流".
 metadata:
   principle: 省 + 稳 + 准
   source: AICoding原则.docx — 红蓝绿三队融合方案
+  pattern: tool-wrapper
+  recommended_model: flash
   status: stable
   version: 2.0.0
+  triggers:
+    - 模型路由
+    - 切换模型
+    - 省模式
+    - 智能路由
+    - 模型调度
+    - 多模型路由
+    - smart router
+    - 安全路由
+    - 断路器
+    - 限流
   integrated-skills:
     - kf-spec
     - kf-mvp

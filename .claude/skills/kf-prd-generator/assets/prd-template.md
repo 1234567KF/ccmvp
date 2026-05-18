@@ -63,11 +63,23 @@
 
 ---
 
-## 4. 页面交互逻辑
+## 4. 功能需求
 
-<!-- 按页面维度描述，使用"用户操作 → 系统响应"格式 -->
+<!-- 每个一级模块对应一个表格，格式：功能项 | 优先级 | 描述 | 验收标准 -->
 
-### 4.1 PAGE_NAME
+### 4.1 MODULE_NAME
+
+| 功能项 | 优先级 | 描述 | 验收标准 |
+|--------|--------|------|---------|
+| FEATURE_NAME | P0/P1/P2 | _功能简要描述_ | _具体可验证的验收标准_ |
+
+---
+
+## 5. 页面交互逻辑
+
+<!-- 按页面维度描述，使用"用户操作 → 系统响应"格式，覆盖所有页面 -->
+
+### 5.1 PAGE_NAME
 
 **页面类型**：列表页 / 详情页 / 表单页
 
@@ -80,7 +92,7 @@
 - **空状态**：EMPTY_STATE_BEHAVIOR
 - **错误状态**：ERROR_STATE_BEHAVIOR
 
-<!-- 核心流程（支付、审批、下单等）强制输出 Mermaid 状态图，非核心流程可选 -->
+<!-- 核心流程（支付、审批、下单、赋码、打包等）强制输出 Mermaid 状态图，非核心流程可选 -->
 
 ```mermaid
 stateDiagram-v2
@@ -99,7 +111,7 @@ stateDiagram-v2
 
 ---
 
-## 5. 异常处理方案
+## 6. 异常处理方案
 
 <!-- 至少列举 5 种异常场景 -->
 
@@ -113,10 +125,10 @@ stateDiagram-v2
 
 ---
 
-## 6. 验收标准
+## 7. 验收标准
 
 <!-- 使用标准 Gherkin Scenario 格式，每个 Then/And 标注 (Frontend) 或 (Backend) 执行边界 -->
-<!-- 至少 2 个 Happy Path + 至少 1 个 Exception Path -->
+<!-- 每个模块至少 3 个 Happy Path + 至少 2 个 Exception Path -->
 
 ### Happy Path
 
@@ -132,14 +144,27 @@ Scenario: AC002 - FEATURE_DESCRIPTION (P1)
   Given PRECONDITION
   When USER_ACTION
   Then EXPECTED_RESULT (Frontend)
+
+Scenario: AC003 - BOUNDARY_DESCRIPTION (P1)
+  Given PRECONDITION
+  And BOUNDARY_CONDITION
+  When USER_ACTION
+  Then EXPECTED_RESULT (Frontend)
 ```
 
 ### Exception Path
 
 ```gherkin
-Scenario: AC003 - EXCEPTION_DESCRIPTION (P0)
+Scenario: AC004 - EXCEPTION_DESCRIPTION (P0)
   Given PRECONDITION
   And EXCEPTION_CONDITION
+  When EXCEPTION_TRIGGER
+  Then ERROR_DISPLAY_MESSAGE (Frontend)
+  And ERROR_RESPONSE_CODE "ERROR_CODE" (Backend)
+
+Scenario: AC005 - ANOTHER_EXCEPTION_DESCRIPTION (P1)
+  Given PRECONDITION
+  And ANOTHER_EXCEPTION_CONDITION
   When EXCEPTION_TRIGGER
   Then ERROR_DISPLAY_MESSAGE (Frontend)
   And ERROR_RESPONSE_CODE "ERROR_CODE" (Backend)
@@ -147,7 +172,7 @@ Scenario: AC003 - EXCEPTION_DESCRIPTION (P0)
 
 ---
 
-## 7. UI 规范约束
+## 8. UI 规范约束
 
 > 仅记录设计决策级信息。具体 CSS 数值（间距、字体大小、圆角等）由 UI 原型生成技能从项目实际样式中提取。
 
@@ -159,7 +184,7 @@ Scenario: AC003 - EXCEPTION_DESCRIPTION (P0)
 
 ---
 
-## 8. 技术约束
+## 9. 技术约束
 
 | 维度 | 约束 |
 |------|------|
@@ -176,13 +201,59 @@ Scenario: AC003 - EXCEPTION_DESCRIPTION (P0)
 
 ---
 
-## 9. 资金流分析（条件章节）
+## 10. 功能结构矩阵
+
+<!-- 展现完整的功能结构：1/2/3级菜单 → 界面 → 按钮 + 角色权限分配 -->
+
+### 10.1 功能层次结构
+
+| 一级模块 | 二级模块 | 三级功能 | 对应界面 | 界面中的操作按钮 |
+|---------|---------|---------|---------|----------------|
+| _一级菜单_ | _二级菜单_ | _具体功能_ | _页面/弹窗_ | _按钮列表_ |
+
+### 10.2 角色-权限矩阵
+
+| 角色 | 一级模块 | 二级模块 | 操作权限 | 数据范围 |
+|------|---------|---------|---------|---------|
+| _角色名称_ | _模块_ | _子模块_ | create/read/update/delete/approve | all/org/self |
+
+---
+
+## 11. 数据权限
+
+> **适用场景**：多角色系统涉及数据隔离、分层查看权限时输出本章。
+
+### 11.1 数据隔离模型
+
+- **隔离级别**：行级 / 列级
+- **组织层级**：上级组织是否可递归查看下级数据
+- **跨组织共享规则**：
+
+| 场景 | 规则 | 说明 |
+|------|------|------|
+| _场景描述_ | _权限规则_ | _详细说明_ |
+
+### 11.2 操作范围
+
+| 角色 | 查看范围 | 操作范围 | 审批范围 |
+|------|---------|---------|---------|
+| _角色_ | 全部/本组织/本人 | 增删改/仅查看 | 可审批/不可审批 |
+
+### 11.3 特殊场景
+
+- 管理员绕过数据隔离的规则
+- 数据操作审计追踪要求
+- 导入/导出权限控制
+
+---
+
+## 12. 资金流分析（条件章节）
 
 > **适用场景**：电商、金融、政府补贴等涉及资金流转的项目。仅当需求中涉及资金流转时输出本章。
 
 <!-- 按资金场景分组，每个节点标注处理主体和系统边界 -->
 
-### 9.1 资金场景名称
+### 12.1 资金场景名称
 
 | 序号 | 步骤节点 | 步骤描述 | 处理主体 | 资金方向 | 涉及金额/比例 | 外部系统/接口 |
 |------|---------|---------|---------|---------|--------------|--------------|
@@ -190,13 +261,13 @@ Scenario: AC003 - EXCEPTION_DESCRIPTION (P0)
 
 ---
 
-## 10. 合规流程（条件章节）
+## 13. 合规流程（条件章节）
 
 > **适用场景**：政府项目、金融项目、涉及审计合规的项目。仅当需求中涉及合规约束时输出本章。
 
 <!-- 按维度分组，输出四流合一矩阵 -->
 
-### 10.1 维度名称
+### 13.1 维度名称
 
 | 子项 | 核心要素 | 对应系统模块 | 数据来源/去向 | 合规要求 | 技术实现 | 备注 |
 |------|---------|-------------|--------------|---------|---------|------|
@@ -204,7 +275,7 @@ Scenario: AC003 - EXCEPTION_DESCRIPTION (P0)
 
 ---
 
-## 11. 待确认事项
+## 14. 待确认事项
 
 <!-- 所有未决问题清单，在 PRD 确认前必须逐条解决 -->
 

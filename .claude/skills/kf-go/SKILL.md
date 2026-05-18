@@ -1,7 +1,24 @@
 ---
 name: kf-go
-description: 统一工作流导航入口 — 自动检测任务类型，路由到最佳技能（MVP/SDD）。触发词：/go、/导航、/开始、/route
-trigger: 当用户说"/go"、"/导航"、"/开始"、"/route"，或输入的任务描述需要自动路由时加载
+description: >-
+  Load when user asks to route a task to the right workflow, or when the task
+  type is unclear and needs auto-detection. Triggers: /go, /导航, /开始, /route,
+  任务路由, 工作流导航, 自动检测, 路由决策.
+metadata:
+  pattern: tool-wrapper
+  recommended_model: flash
+  interaction: single-turn
+  integrated-skills:
+    - kf-mvp
+    - kf-sdd
+graph:
+  dependencies:
+    - target: kf-mvp
+      type: workflow  # 路由到 MVP Pipeline
+    - target: kf-sdd
+      type: workflow  # 路由到详细设计
+    - target: kf-model-router
+      type: workflow  # 模型路由决策
 ---
 
 # kf-go — 统一工作流导航入口
@@ -136,9 +153,51 @@ node {IDE_ROOT}/helpers/skill-router.cjs detect-task --task "<用户输入>" [--
 - `/route` — 自动路由
 - 描述性任务（无明确技能名时自动触发 kf-go 进行检测）
 
+---
+
 ## 6. 注意事项
 
 1. **轻量设计** — kf-go 本身不执行任何开发/原型/文档生成任务，只做路由决策
 2. **复用现有分析** — 复杂度分析逻辑完全复用 work-estimator.cjs 的 `analyzeTask()`，不重复实现
 3. **缓存友好** — 单次 `detect-task` 调用 < 10ms，不影响 KV Cache
 4. **降级安全** — 无 work-estimator.cjs 时使用内建简化版 KEYWORD_RULES 降级运行
+
+---
+
+## 7. Iron Rules
+
+1. **MUST NOT 执行开发/原型/文档生成任务** — kf-go 只做路由决策，不执行具体工作
+2. **MUST NOT 假设用户意图** — 置信度 < high 时必须请求用户确认
+3. **MUST 降级安全** — work-estimator.cjs 不可用时使用内建降级规则
+4. **MUST 记录路由决策** — 每次路由完成后写入 routing-log.md（见下方记忆持久化）
+
+---
+
+## 8. Harness 反馈闭环
+
+| Step | 验证动作 | 失败处理 |
+|------|---------|---------|
+| detect-task | `node {IDE_ROOT}/helpers/skill-router.cjs detect-task --task "<输入>"` | 降级至菜单模式 |
+| Gate 1 — 置信度确认 | 置信度 < high → MUST 请求用户确认 | 不可自动跳过确认 |
+| Gate 2 — 目标技能存在 | 路由目标技能 MUST 存在 | 回退至菜单选择 |
+
+## 9. 记忆持久化（铁律 4）
+
+**启动加载：** 读取 `memory/routing-log.md`（如存在）最近 3 条路由记录。
+
+**完成写入：** 每次路由决策后写入：
+
+```markdown
+### {date} — {task}
+- **检测类型**：{taskType}
+- **置信度**：{confidence}
+- **路由目标**：{skillName}
+- **是否确认**：{auto / user-confirmed}
+```
+
+## Reference Files
+
+| 文件 | 加载时机 | 用途 |
+|------|---------|------|
+| `{IDE_ROOT}/helpers/work-estimator.cjs` | detect-task | 任务复杂度分析 |
+| `{IDE_ROOT}/helpers/skill-router.cjs` | detect-task | 路由决策入口 |

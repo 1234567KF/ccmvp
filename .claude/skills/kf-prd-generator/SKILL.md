@@ -83,15 +83,15 @@ After collecting user answers, MUST auto-scan workspace dependency files to extr
 - Cannot detect dependency files → MUST ask for specific version numbers
 - If SDD Excel source: cross-compare Phase 1.5 detected values with Sheet14 data, conflicts resolved by user confirmation
 - **MVP mode or no dependency files falling back to `安装或更新/docs/mvp技术栈.md`**: Tech constraints table uses MVP defaults, PRD Chapter 8 auto-fills MVP tech stack, Mock strategy noted in remarks
-- Confirmed values from this table become the basis for PRD Chapters 7 and 8
+- Confirmed values from this table become the basis for PRD Chapters 8 and 9
 
 ### Gate 1 — DO NOT generate PRD until all Phase 1 questions are fully answered and confirmed by user.
 
 ### Gate 1.5 — Tech Constraint Completeness Verification
 
 Before generating PRD, MUST verify:
-- [ ] Chapter 7 "UI Specification Constraints" component library field includes name + version number (e.g., "Ant Design Vue 4.1.2", not "Ant Design Vue 3.x" or just "Ant Design Vue")
-- [ ] Chapter 8 "Technical Constraints" all framework fields filled with specific version numbers
+- [ ] Chapter 8 "UI Specification Constraints" component library field includes name + version number (e.g., "Ant Design Vue 4.1.2", not "Ant Design Vue 3.x" or just "Ant Design Vue")
+- [ ] Chapter 9 "Technical Constraints" all framework fields filled with specific version numbers
 - [ ] All version numbers from project auto-detection or user explicit confirmation (Phase 1.5 table status ✅)
 - [ ] No unconfirmed ⚠️ status items
 
@@ -126,30 +126,99 @@ After confirming all requirements, generate PRD following these steps:
 - Extract all data fields, output in table format
 - Each field includes: field name, type, required, validation rules, default value, notes
 
-### Step 4: Page Interaction Logic
+### Step 4: Functional Requirements by Module
+
+Generate per-module functional requirements tables. Each first-level module MUST have a dedicated subsection with this table format:
+
+| 功能项 | 优先级 | 描述 | 验收标准 |
+|--------|--------|------|---------|
+| FEATURE | P0/P1/P2 | Brief description | Specific verifiable acceptance |
+
+- Reference the flash PRD format (Chapter 5): each module table lists features as rows with inline acceptance criteria
+- 优先级: P0 (core/must-have), P1 (important/should-have), P2 (nice-to-have)
+- 验收标准 MUST be specific and verifiable (e.g., "列表展示标识编号、类型、申请数量"), NOT vague like "功能正常"
+- Second-level modules (sub-modules) can use separate tables under the first-level heading
+- Cover ALL features identified in Phase 1 Q1 sources + Phase 2 Step 1 extraction
+
+### Step 5: Page Interaction Logic
 
 - Describe interaction flows by page dimension (list page, detail page, form page, etc.)
+- MUST cover ALL pages derived from the functional requirements (Step 4) — no omissions
+- Every page MUST include: list/search/view/create/edit operations as applicable
 - Use "user action → system response" format for each interaction step
-- Note handling for loading, empty, and error states
-- Core flows (payment, approval, ordering) MUST output Mermaid `stateDiagram-v2` state diagrams
-- Non-core flows optional
+- MUST cover three states for each page:
+  - **Loading**: skeleton/spinner behavior
+  - **Empty**: what user sees when no data exists
+  - **Error**: error message, retry mechanism
+- Core flows (payment, approval, ordering, code binding, packaging) MUST output Mermaid `stateDiagram-v2` state diagrams
+- Non-core flows optional but at minimum MUST describe the interaction steps in table format
 - State diagrams must include all state nodes, transition conditions, exception rollback paths
 - Include state-permission mapping table
 
-### Step 5: Exception Handling Plan
+### Step 6: Exception Handling Plan
 
 - List at least 5 exception scenarios and handling plans
 - Include: network error, insufficient permissions, data conflict, concurrent operations, data not found
 
-### Step 6: Acceptance Criteria
+### Step 7: Acceptance Criteria
 
 - Write verifiable acceptance criteria for each feature point
 - MUST use standard Gherkin `Scenario:` format (not table format)
 - Each `Then`/`And` line MUST mark `(Frontend)` or `(Backend)` execution boundary
-- At least 2 Happy Path scenarios + 1 Exception Path scenario
+- **Coverage requirements per module:**
+  - At least 3 Happy Path scenarios (covering: normal flow, boundary conditions, multi-role)
+  - At least 2 Exception Path scenarios (covering: permission denied, data not found, concurrent conflict, network failure, invalid input)
+  - Exception Path MUST include at least one scenario with error response code verification
 - Mark priority (P0/P1/P2)
+- The combined acceptance criteria across all modules MUST be sufficient to generate complete test cases
 
-### Step 7: Output Complete PRD Document
+**Gate**: All modules MUST have ≥3 Happy Path + ≥2 Exception Path. If any module is short, return to Step 7 to supplement.
+
+### Step 8: Function Structure Matrix
+
+Generate two comprehensive matrices mapping the full system structure:
+
+**Table 1 — Function Hierarchy:**
+| 一级模块 | 二级模块 | 三级功能 | 对应界面 | 界面中的操作按钮 |
+|---------|---------|---------|---------|----------------|
+| Top menu | Sub-menu | Feature | Screen/page | Buttons/actions |
+
+- 一级 = top-level navigation menu item
+- 二级 = sub-menu or module section
+- 三级 = specific feature/function
+- 对应界面 = which screen/page hosts this feature
+- 界面中的操作按钮 = all interactive elements on that screen
+
+**Table 2 — Role-Permission Matrix:**
+| 角色 | 一级模块 | 二级模块 | 操作权限 | 数据范围 |
+|------|---------|---------|---------|---------|
+| ROLE | MODULE | SUB-MODULE | create/read/update/delete/approve | all/org/self |
+
+- Include ALL roles identified in Phase 1 Q2
+- 操作权限: granular per-feature, not per-page
+- 数据范围: what data scope this role can access
+
+### Step 9: Data Permissions Analysis
+
+Generate a dedicated section analyzing data access control:
+
+- **Data isolation model**: how data is segmented between organizations/roles
+  - Row-level vs column-level isolation
+  - Organization hierarchy: parent org can view child org data? (recursive sub-set visibility)
+  - Cross-org data sharing rules
+- **Operation scope**: what each role can do with data
+  - View only / View + operate / View + operate + approve
+  - Hierarchical scope: self data → department data → all data
+- **Approval scope**: which operations require approval and who can approve
+  - Approval chain definition
+  - Escalation rules (auto-escalate after timeout)
+  - Delegation rules
+- **Special cases**:
+  - Admin bypass of data isolation
+  - Audit trail for all data-access operations
+  - Data export/import permission controls
+
+### Step 10: Output Complete PRD Document
 
 Load `assets/prd-template.md` for PRD document standard template.
 
@@ -166,22 +235,25 @@ Output complete PRD following template structure. File path rules:
 
 ## Output Format
 
-**Required chapters (1-8 + 11, no omissions):**
+**Required chapters (1-12, no omissions):**
 
 1. **Requirement Background** (business objective, target users, core value)
 2. **Business Rules** (numbered rule list by module)
 3. **Data Field Definitions** (table format with types and validation rules)
-4. **Page Interaction Logic** (action→response format, core flows with Mermaid state diagrams + state-permission mapping)
-5. **Exception Handling Plan** (≥5 scenarios)
-6. **Acceptance Criteria** (Gherkin Scenario format with execution boundary labels and priority)
-7. **UI Specification Constraints** (component library, colors, spacing, fonts)
-8. **Technical Constraints** (tech stack, reference specifications)
-11. **Pending Items** (all unresolved questions list)
+4. **Functional Requirements** (per-module table: 功能项 | 优先级 | 描述 | 验收标准)
+5. **Page Interaction Logic** (action→response format, core flows with Mermaid state diagrams + state-permission mapping; MUST cover all pages)
+6. **Exception Handling Plan** (≥5 scenarios)
+7. **Acceptance Criteria** (Gherkin Scenario format with execution boundary labels and priority; ≥3 Happy Path + ≥2 Exception Path per module)
+8. **UI Specification Constraints** (component library, colors, spacing, fonts)
+9. **Technical Constraints** (tech stack, reference specifications)
+10. **Function Structure Matrix** (feature hierarchy 1/2/3-level → UI → buttons + role-permission matrix)
+11. **Data Permissions** (data isolation model, operation scope, approval scope)
+12. **Pending Items** (all unresolved questions list)
 
 **Conditional chapters (output only when applicable):**
 
-9. **Fund Flow Analysis** — only when requirements involve fund flow
-10. **Compliance Process** — only when requirements involve compliance constraints
+13. **Fund Flow Analysis** — only when requirements involve fund flow
+14. **Compliance Process** — only when requirements involve compliance constraints
 
 > Complete output template: `assets/prd-template.md`
 
@@ -218,15 +290,19 @@ After each PRD generation, MUST write summary to `memory/prd-generation-log.md`:
 6. Field definitions MUST be tabular — no pure-text field descriptions
 7. Acceptance criteria MUST be verifiable — no vague descriptions (e.g., "good user experience")
 8. Business rules MUST be numbered — for downstream task reference
-9. Core flows MUST output state diagrams — payment/approval/ordering flows must include Mermaid `stateDiagram-v2` + state-permission mapping table
-10. Acceptance criteria MUST use Gherkin format — standard `Scenario:` format, each Then/And marked `(Frontend)` or `(Backend)`, at least 2 Happy Path + 1 Exception Path
-11. Conditional chapters output as needed — Chapter 9 (fund flow) only when fund flow involved, Chapter 10 (compliance) only when compliance involved
+9. Core flows MUST output state diagrams — payment/approval/ordering/code-binding/packaging flows must include Mermaid `stateDiagram-v2` + state-permission mapping table
+10. Acceptance criteria MUST use Gherkin format — standard `Scenario:` format, each Then/And marked `(Frontend)` or `(Backend)`, at least 3 Happy Path + at least 2 Exception Path per module
+11. Conditional chapters output as needed — Chapter 13 (fund flow) only when fund flow involved, Chapter 14 (compliance) only when compliance involved
 12. Gate mechanization (Harness Engineering Iron Rule 2) — Gate 1 and Gate 1.5 MUST pass mechanized verification, block generation on failure
+13. Functional Requirements chapter MUST use 4-column table format (功能项 | 优先级 | 描述 | 验收标准), each first-level module gets its own table
+14. Function Structure Matrix MUST generate both hierarchy table (1/2/3-level → UI → buttons) and role-permission matrix
+15. Data Permissions chapter MUST be generated when the system involves multiple roles with different data access levels
+16. Each feature's acceptance criteria in the 功能需求 table MUST be specific and verifiable — no vague descriptions like "功能正常"
 
 ## Reference Files
 
 | File | Load When | Purpose |
 |------|-----------|---------|
-| `assets/prd-template.md` | Step 7 | PRD document standard template |
+| `assets/prd-template.md` | Step 10 | PRD document standard template |
 | `assets/sdd-excel-parsing-rules.md` | Phase 1 SDD routing | SDD requirements collection Excel structured parsing rules |
 | `安装或更新/docs/mvp技术栈.md` | Phase 1.5 (no dependency files) | MVP minimal dev tech stack defaults |

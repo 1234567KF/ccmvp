@@ -5,9 +5,71 @@
 
 ---
 
-## 页面分类（pageType）
+## Vue SPA 模式（TypeScript 数据文件）
 
-每个页面在顶层标注类型，AI 按类型选择必填层级：
+> 适用于 Vue 3 + Ant Design Vue 项目。注释数据定义在 `annotation-data.ts` 中。
+> 完整示例见 `kf-annotate SKILL.md` 的 Vue SPA 模式章节。
+
+### 文件位置
+
+```
+src/client/annotations/annotation-data.ts   ← L0-L6 TypeScript 类型定义 + 每页数据
+src/client/components/AnnotationDrawer.vue  ← a-drawer + a-tabs 渲染
+src/App.vue                                 ← Ctrl+M 快捷键绑定
+```
+
+### 层级映射
+
+| JSON 模板层 | Vue SPA 对应接口 | 说明 |
+|-------------|-----------------|------|
+| l0 | AnnotationL0 | title, summary, prdRef, specRef, deps, ops |
+| l0_ops | 合并到 L0.ops | 可操作列表 |
+| l0_search | 合并到 L1.tips | 搜索字段说明 |
+| l0_deps | 合并到 L0.deps | 依赖模块列表 |
+| l1 | AnnotationL1 | fields[{name,desc,biz?,rule?}], tips? |
+| l1_list | 合并到 L1 | 列表展示配置 |
+| l1_bounds | 合并到 L1 字段 rule | 在 rule 中标注约束 |
+| l2 | AnnotationL2 | rules[], exceptions[] |
+| l2_exceptions | 合并到 L2.exceptions | 异常场景 |
+| l3 | AnnotationL3 | entity, states[], initial, transitions[] |
+| l4 | AnnotationL4 | endpoints[{method,path,description}] |
+| l5 | 跳过(MVP) | MVP 阶段不涉及性能 |
+| l6 | AnnotationL6 | items[{id,question,status,note?}] |
+
+### 必填规则
+
+| 页面类型 | 必填层级 |
+|----------|---------|
+| 列表型（产品目录/库存/物流） | L0, L1, L2, L4 |
+| 查询型（条码/批号/溯源码查询） | L0, L2, L3(状态流), L4 |
+| 表单型（模板/经销商/门店管理） | L0, L1, L2, L4 |
+| 统计型（报表页面） | L0, L4 |
+| 特殊页（消费者查询/溯源链） | L0, L1, L2, L3, L4 |
+
+### TypeScript 类型定义示例
+
+```typescript
+// 完整类型定义见 kf-annotate SKILL.md
+export interface PageAnnotation {
+  route: string
+  L0: AnnotationL0
+  L1?: AnnotationL1
+  L2?: AnnotationL2
+  L3?: AnnotationL3  // 状态机
+  L4?: AnnotationL4  // API 契约
+  L6?: AnnotationL6  // 开放问题
+}
+```
+
+### 快捷键约束
+
+- Ctrl+M 直接控制 drawer visible，不设中间 mode 状态
+- 禁止浮动按钮、禁止模式指示条
+- 见 `App.vue` 实现
+
+---
+
+## 静态 HTML 模式（JSON 数据块）每个页面在顶层标注类型，AI 按类型选择必填层级：
 
 | pageType | 说明 | 必填层级 |
 |----------|------|---------|
@@ -410,6 +472,7 @@
     "title": "状态机",
     "entity": "订单 (Order)",
     "states": ["待支付", "已支付", "处理中", "已完成", "已取消", "已退款"],
+    "initial": "待支付",
     "transitions": [
       {"from": "待支付", "to": "已支付", "event": "支付成功", "guard": "金额匹配 + 库存充足", "roles": ["系统"]},
       {"from": "待支付", "to": "已取消", "event": "超时/手动取消", "guard": "创建超过30分钟 或 用户手动", "roles": ["系统", "@Customer"]},
@@ -417,9 +480,51 @@
       {"from": "处理中", "to": "已完成", "event": "发货确认", "guard": "物流单号已填写", "roles": ["@Admin"]},
       {"from": "已支付", "to": "已退款", "event": "申请退款通过", "guard": "退款金额 ≤ 订单金额", "roles": ["@Admin"]}
     ],
-    "mermaid": "stateDiagram-v2\n  [*] --> 待支付\n  待支付 --> 已支付: 支付成功\n  待支付 --> 已取消: 超时/手动取消\n  已支付 --> 处理中: 管理员接单\n  已支付 --> 已退款: 退款通过\n  处理中 --> 已完成: 发货确认\n  已完成 --> [*]\n  已取消 --> [*]\n  已退款 --> [*]",
+    "mermaid": "stateDiagram-v2\n  direction LR\n  [*] --> 待支付\n  待支付 --> 已支付: 支付成功\n  待支付 --> 已取消: 超时/手动取消\n  已支付 --> 处理中: 管理员接单\n  已支付 --> 已退款: 退款通过\n  处理中 --> 已完成: 发货确认\n  已完成 --> [*]\n  已取消 --> [*]\n  已退款 --> [*]",
     "prdRef": "[PRD 3.2.3] 订单状态流转"
   }
+}
+```
+
+**mermaid 字段生成规则**：
+1. **必须**包含 `direction LR`（横向布局，窄容器友好）
+2. **必须**显式声明所有状态节点（`state "xxx"`），提升布局稳定性
+3. **必须**包含 `initial` 字段，用于生成 `[*] --> initialState`
+4. 转移标签格式：`序号. 触发事件`（如 `1. 支付成功`）
+5. 避免自环边（`A --> A`），如必须自环，改用注释文本描述
+6. 终态统一添加 `xxx --> [*]`
+
+**自动生成脚本示例**：
+```javascript
+function buildMermaidFromL3(l3) {
+  const lines = [];
+  lines.push('stateDiagram-v2');
+  lines.push('direction LR');
+  lines.push('');
+
+  // 显式声明状态
+  l3.states.forEach(st => {
+    if (st !== '[*]') lines.push(`  state "${st}"`);
+  });
+  lines.push('');
+
+  // 初始状态
+  lines.push(`  [*] --> "${l3.initial}"`);
+
+  // 转移
+  l3.transitions.forEach((tr, i) => {
+    lines.push(`  "${tr.from}" --> "${tr.to}" : ${i + 1}. ${tr.event}`);
+  });
+
+  // 终态（无出边的状态）
+  const hasOutgoing = new Set(l3.transitions.map(t => t.from));
+  l3.states.forEach(st => {
+    if (!hasOutgoing.has(st) && st !== l3.initial) {
+      lines.push(`  "${st}" --> [*]`);
+    }
+  });
+
+  return lines.join('\n');
 }
 ```
 
