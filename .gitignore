@@ -23,3 +23,6 @@ node_modules/
 # 系统
 .DS_Store
 Thumbs.db
+
+# 本地示例项目（由 ccmvp 框架生成，不提交）
+project-1/
