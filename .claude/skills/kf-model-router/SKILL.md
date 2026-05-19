@@ -1,13 +1,12 @@
 ﻿---
 name: kf-model-router
 description: >-
-  Load when user asks for model routing, smart model switching, or circuit
-  breaker control. Auto-triggered on every tool call via PreToolUse hook — zero
-  config, transparent user experience. Multi-provider scheduling (DeepSeek
-  Pro/Flash, MiniMax 2.7, Kimi K2.5) with semantic task classification + weighted
-  scoring + circuit breaker + fallback chain + token bucket + key isolation.
+  Load when user asks for model routing or smart model switching.
+  Auto-triggered on every tool call via PreToolUse hook — zero config,
+  transparent user experience. Multi-provider scheduling (DeepSeek Pro/Flash,
+  MiniMax 2.7, Kimi K2.5) with semantic task classification + weighted scoring.
   Triggers: "模型路由", "切换模型", "省模式", "智能路由", "模型调度",
-  "多模型路由", "smart router", "安全路由", "断路器", "限流".
+  "多模型路由", "smart router".
 metadata:
   principle: 省 + 稳 + 准
   source: AICoding原则.docx — 红蓝绿三队融合方案
@@ -23,9 +22,6 @@ metadata:
     - 模型调度
     - 多模型路由
     - smart router
-    - 安全路由
-    - 断路器
-    - 限流
   integrated-skills:
     - kf-spec
     - kf-mvp
@@ -37,13 +33,9 @@ metadata:
     - kf-browser-ops
   capabilities:
     - dual-model-routing: "DeepSeek Pro/Flash 双模型基础路由"
-    -     - multi-vendor-routing: "多供应商动态路由（DeepSeek/MiniMax/Kimi）"
+    - multi-vendor-routing: "多供应商动态路由（DeepSeek/MiniMax/Kimi）"
     - semantic-classification: "语义任务分类（8 种类型 + 4 级复杂度）"
     - weighted-scoring: "加权评分选优（4 种策略）"
-    - circuit-breaker: "断路器 + 健康探测 + 自动恢复"
-    - fallback-chain: "降级链（最多 4 级）"
-    - rate-limiter: "令牌桶限流（每供应商独立桶）"
-    - key-isolation: "密钥隔离（各供应商独立环境变量）"
     - cache-compatible: "DeepSeek KV Cache 保留"
     - zero-config: "零手动配置，运行时内存调度"
 graph:
@@ -74,10 +66,6 @@ graph:
       type: dependency
     - target: kf-autoresearch
       type: dependency
-    - target: kf-token-tracker
-      type: dependency
-    - target: kf-langextract
-      type: dependency
     - target: kf-skill-design-expert
       type: dependency
     - target: kf-go
@@ -89,7 +77,6 @@ graph:
 > **核心原则**：最好的模型和最性价比的模型搭配，结合工具方法稳固 ROI。
 > **管理原则**：想的美，做的实。计划用 pro（深度推理），执行用 flash（高效落地）。
 > **扩展**：支持多供应商模型池（DeepSeek + MiniMax + Kimi），自动最优路由。
-> **安全信条**：宁可降级不可泄露，每次调用必须有降级方案。
 > **切换方式**：自动切换，用户无感。
 
 ---
@@ -107,10 +94,6 @@ graph:
   │     │
   │     ├─ 快速路径（查表，置信度 > 0.85）
   │     └─ 加权路径（4 种策略）
-  │
-  ├─ Safety Layer ─────→ 断路器 + 限流 + 健康探测
-  │     │
-  │     └─ 异常 → 走降级链 (最多 4 级)
   │
   └─ Dispatcher ──────→ 密钥注入 + 返回 model 参数
 ```
@@ -166,57 +149,6 @@ graph:
 
 ---
 
-## 安全机制
-
-### 断路器
-
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| failureThreshold | 3（smart）/ 5（safe） | 连续失败次数 → OPEN |
-| successThreshold | 2 | 半开状态连续成功次数 → CLOSED |
-| timeout | 30000ms | OPEN → HALF_OPEN 等待时间 |
-| halfOpenMaxRequests | 1 | 半开状态允许最大试探请求数 |
-
-```
-CLOSED (正常) ──连续失败→ OPEN (熔断)
-   ↑                       │
-   │                       ↓
-   恢复 ←──超时──→ HALF-OPEN (尝试恢复)
-```
-
-### 降级链
-
-| 首选模型 | 降级链 |
-|---------|--------|
-| `deepseek-v4-pro` | → `deepseek-v4-flash` → `minimax-2.7` → `kimi-k2.5` → SAFE_MODE |
-| `deepseek-v4-flash` | → `deepseek-v4-pro` → `minimax-2.7` → `kimi-k2.5` → SAFE_MODE |
-| `minimax-2.7` | → `deepseek-v4-flash` → `kimi-k2.5` → SAFE_MODE |
-| `kimi-k2.5` | → `deepseek-v4-flash` → SAFE_MODE |
-
-触发降级条件：断路器 OPEN / 密钥缺失 / 限流令牌不足 / 健康探测不通过 / HTTP 超时/5xx。
-
-### 令牌桶限流
-
-| 供应商 | 容量 | 填充速率 | 安全余量 |
-|--------|------|---------|---------|
-| DeepSeek | 16 tokens | 0.26/s | 80%（20 rpm → 16） |
-| MiniMax | 24 tokens | 0.4/s | 80%（30 rpm → 24） |
-| Kimi | 16 tokens | 0.26/s | 80%（20 rpm → 16） |
-
-多 Agent 共享同一供应商桶，桶满时请求等待（最多 5000ms）后降级。
-
-### 密钥隔离
-
-每个供应商独立环境变量，独立 HTTP 客户端实例，独立令牌桶：
-
-```bash
-export DEEPSEEK_API_KEY=sk-xxx
-export MINIMAX_API_KEY=mm-xxx
-export KIMI_API_KEY=sk-xxx
-```
-
----
-
 ## 文件结构
 
 ```
@@ -229,20 +161,11 @@ export KIMI_API_KEY=sk-xxx
 ├── routing-engine.cjs          # 动态路由引擎（加权评分）
 ├── dispatcher.cjs              # 并发调度器
 ├── health-checker.cjs          # 健康探测 + 断路器
-├── model-router-hook.cjs       # PreToolUse Hook
 ├── providers/                  # 供应商适配器
 │   ├── base-adapter.cjs        # 适配器基类
 │   ├── deepseek.cjs            # DeepSeek 适配器
 │   ├── minimax.cjs             # MiniMax 适配器
 │   └── kimi.cjs              # Kimi (Moonshot) 适配器
-├── safety/                     # 安全基础设施
-│   ├── circuit-breaker.cjs     # 断路器模式
-│   ├── degradation-chain.cjs   # 降级链编排
-│   ├── rate-limiter.cjs        # 令牌桶限流
-│   ├── key-isolator.cjs        # 密钥隔离 + 客户端工厂
-│   ├── health-probe.cjs        # 健康探测
-│   ├── model-health.cjs        # 三态断路器 + 健康探测
-│   └── safe-router.cjs         # 安全路由主入口
 └── test/
     └── model-router.test.cjs   # 集成测试
 ```
@@ -258,23 +181,7 @@ export KIMI_API_KEY=sk-xxx
 
 ### 方式 2：Hook 自动检测
 
-```json
-{
-  "matcher": "Skill",
-  "hooks": [
-    {
-      "type": "command",
-      "command": "node {IDE_ROOT}/helpers/model-router-hook.cjs auto-route",
-      "timeout": 5000
-    },
-    {
-      "type": "command",
-      "command": "node {IDE_ROOT}/skills/kf-model-router/model-router-hook.cjs",
-      "timeout": 5000
-    }
-  ]
-}
-```
+（当前无 PreToolUse 自动路由钩子，模型切换需手动触发）
 
 ### 方式 3：Agent 级模型路由（MVP 内部）
 
@@ -338,12 +245,6 @@ node {IDE_ROOT}/skills/kf-model-router/index.cjs stats
 
 # 健康检查
 node {IDE_ROOT}/skills/kf-model-router/index.cjs health-check
-
-# 查询安全状态
-node {IDE_ROOT}/skills/kf-model-router/safety/safe-router.cjs status
-
-# 查看路由日志
-node {IDE_ROOT}/skills/kf-model-router/safety/safe-router.cjs log 20
 ```
 
 ### 编程接口

@@ -553,8 +553,8 @@ body::before{
     </div>
     <div class="card-title">基础设施技能</div>
     <div class="card-subtitle">始终在线 · 全自动运行</div>
-    <div class="card-engine">kf-model-router + kf-go + tokenforge + lean-ctx + CCP + λ</div>
-    <div class="card-desc">模型路由 · 上下文压缩 · Token 节省 · 工作流导航 · 智能调度。零感知后台优化，综合 Token 节省 80%+。</div>
+    <div class="card-engine">kf-model-router + kf-go + tokenforge + lean-ctx</div>
+    <div class="card-desc">模型路由 · 上下文压缩 · Token 节省 · 工作流导航。零感知后台优化，综合 Token 节省 80%+。</div>
     <div class="card-tag">省 · Token 节省 80%</div>
   </div>
   </div>
@@ -574,8 +574,8 @@ body::before{
     </div>
     <div class="card-title">脚本引擎</div>
     <div class="card-subtitle">底层执行 · 支撑全局</div>
-    <div class="card-engine">49 个 .cjs/.mjs Helper 脚本</div>
-    <div class="card-desc">6 大分类：执行引擎 · 监控追踪 · 安全防护 · 质量门控 · 性能采集 · 工具辅助。Hook 注入，全链路自动化。</div>
+    <div class="card-engine">34 个 .cjs/.mjs Helper 脚本</div>
+    <div class="card-desc">6 大分类：执行引擎 · 监控追踪 · 质量门控 · 性能采集 · 工具辅助。Hook 注入，全链路自动化。</div>
     <div class="card-tag">擎 · 49 脚本引擎</div>
   </div>
   </div>
@@ -585,7 +585,7 @@ body::before{
     <div class="hero-footer-text">
       技能闭环&ensp;<strong>Pipeline 技能 → 基础设施技能 → 脚本引擎</strong>&ensp;三层协同
     </div>
-    <div class="hero-footer-stats">19 技能 &middot; 49 脚本 &middot; 6 阶段 Pipeline &middot; 80% Token 节省</div>
+    <div class="hero-footer-stats">21 技能 &middot; 27 脚本 &middot; 6 阶段 Pipeline &middot; 80% Token 节省</div>
   </div>
 
   <div class="scroll-hint">
@@ -616,7 +616,7 @@ body::before{
       <div class="stat-label">kf- 技能总数</div>
     </div>
     <div class="effect-stat">
-      <div class="stat-value">49</div>
+      <div class="stat-value">34</div>
       <div class="stat-label">Helper 脚本</div>
     </div>
     <div class="effect-stat">
@@ -786,10 +786,10 @@ body::before{
   <tbody>
   <tr>
     <td><span class="skill-name">kf-model-router</span></td>
-    <td><span class="stage-badge always">安全路由</span></td>
+    <td><span class="stage-badge always">模型路由</span></td>
     <td><span class="trigger-badge auto">全自动</span></td>
-    <td>多模型智能路由 — DeepSeek Pro/Flash 分阶段切换 + 断路器 + 降级链 + 限流</td>
-    <td>model-router-hook.cjs / safe-router.cjs / circuit-breaker.cjs / rate-limiter.cjs / key-isolator.cjs / degradation-chain.cjs / model-health.cjs</td>
+    <td>多模型智能路由 — DeepSeek Pro/Flash 分阶段切换，语义任务分类 + 加权评分</td>
+    <td>routing-engine.cjs / task-classifier.cjs</td>
   </tr>
   <tr>
     <td><span class="skill-name">kf-go</span></td>
@@ -812,20 +812,8 @@ body::before{
     <td>LLM Token 压缩引擎 — ANSI 剥离 + 空行折叠 + 重复行去重 + 行数截断</td>
     <td>tokenforge.cjs / tokenforge-hook.cjs</td>
   </tr>
-  <tr>
-    <td><span class="skill-name">lambda-lang</span></td>
-    <td><span class="stage-badge always">A2A 通信</span></td>
-    <td><span class="trigger-badge auto">全自动</span></td>
-    <td>Agent 间结构化通信协议 — 替代自然语言，输出压缩 66.5%</td>
-    <td>lambda-a2a.cjs</td>
-  </tr>
-  <tr>
-    <td><span class="skill-name">CCP / claude-code-pro</span></td>
-    <td><span class="stage-badge always">智能调度</span></td>
-    <td><span class="trigger-badge auto">全自动</span></td>
-    <td>智能跳过 Agent spawn（省 15K tok/次）+ 回调替代轮询（省 80-97% 等待）</td>
-    <td>ccp-smart-dispatch.cjs / ccswitch.cjs / smart-dispatcher.cjs</td>
-  </tr>
+  
+  
   </tbody>
   </table>
   </div>
@@ -851,18 +839,6 @@ body::before{
         <span class="script-desc">PreToolUse 钩子，自动将 Bash 输出管道接入压缩引擎</span>
       </div>
       <div class="script-item">
-        <span class="script-name">lambda-a2a.cjs</span>
-        <span class="script-desc">Lambda-lang A2A 协议，Agent 间 3x 压缩通信</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">ccp-smart-dispatch.cjs</span>
-        <span class="script-desc">CCP 智能调度，&lt;3 文件跳过 spawn，回调替代轮询</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">ccswitch.cjs</span>
-        <span class="script-desc">CCP 模式切换器，按任务复杂度自动选调度策略</span>
-      </div>
-      <div class="script-item">
         <span class="script-name">skill-loader.cjs</span>
         <span class="script-desc">L3 按需加载，根据阶段动态加载技能，压缩率 88-96%</span>
       </div>
@@ -870,58 +846,14 @@ body::before{
         <span class="script-name">skill-router.cjs</span>
         <span class="script-desc">技能路由器，按任务类型+复杂度自动分配技能</span>
       </div>
-      <div class="script-item">
-        <span class="script-name">smart-dispatcher.cjs</span>
-        <span class="script-desc">智能调度器，多 Agent 并发编排与通信</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">orchestrator-qoder.cjs</span>
-        <span class="script-desc">Qoder 编排器，Team Lead + 6 专家并行架构</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">cache-warmup.cjs</span>
-        <span class="script-desc">KV Cache 预热，长文档首请求前预加载缓存</span>
-      </div>
     </div>
 
     <!-- 监控追踪 -->
     <div class="script-cat-card">
       <h4><span class="cat-dot monitor"></span> 监控追踪 — Monitor & Track</h4>
       <div class="script-item">
-        <span class="script-name">token-tracker.cjs</span>
-        <span class="script-desc">Token 全量追踪，每次 API 调用的 input/output/cache 记录</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">cost-tracker.cjs</span>
-        <span class="script-desc">成本追踪，按模型/技能/Agent/会话维度实时呈现</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">kf-saver-hook.cjs</span>
-        <span class="script-desc">节省追踪钩子，baseline_cost 基线对比，自动记录节省数据</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">kf-monitor-bridge.cjs</span>
-        <span class="script-desc">监控桥接，异常检测 + 三级阈值告警（critical/warning/info）</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">cache-audit.cjs</span>
-        <span class="script-desc">缓存命中率审计，命中率 < 30% 自动告警</span>
-      </div>
-      <div class="script-item">
         <span class="script-name">agent-visual-dashboard.cjs</span>
         <span class="script-desc">Agent 可视化看板，关键节点输出执行状态</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">health-probe.cjs</span>
-        <span class="script-desc">健康探针，API 端点 + MCP 服务可用性检测</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">model-health.cjs</span>
-        <span class="script-desc">模型健康检查，多供应商状态监控 + 自动切换</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">statusline.cjs</span>
-        <span class="script-desc">状态栏，实时显示 Token/Cache/Model 状态</span>
       </div>
     </div>
 
@@ -929,32 +861,8 @@ body::before{
     <div class="script-cat-card">
       <h4><span class="cat-dot safety"></span> 安全防护 — Safety & Security</h4>
       <div class="script-item">
-        <span class="script-name">safe-router.cjs</span>
-        <span class="script-desc">安全路由，多供应商动态调度 + 密钥隔离 + 降级链</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">circuit-breaker.cjs</span>
-        <span class="script-desc">三态断路器（Closed→Open→HalfOpen），防连锁故障</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">key-isolator.cjs</span>
-        <span class="script-desc">密钥隔离 Axios 工厂，不同供应商独立密钥空间</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">rate-limiter.cjs</span>
-        <span class="script-desc">令牌桶限流器，防止 API 速率限制触发</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">degradation-chain.cjs</span>
-        <span class="script-desc">降级链，Pro→Flash→MiniMax→Kimi 自动逐级降级</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">model-provider-registry.cjs</span>
-        <span class="script-desc">模型供应商注册表，统一管理多厂商 API 端点</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">model-router-hook.cjs</span>
-        <span class="script-desc">模型路由钩子，PreToolUse 自动注入路由策略</span>
+        <span class="script-name">gate-keeper.cjs</span>
+        <span class="script-desc">技能门禁，PreToolUse 自动检验阶段合规</span>
       </div>
     </div>
 
@@ -1044,22 +952,6 @@ body::before{
         <span class="script-desc">对齐钩子，PostToolUse 自动触发对齐检查</span>
       </div>
       <div class="script-item">
-        <span class="script-name">annotate-generator.mjs</span>
-        <span class="script-desc">注释生成器，L0-L6 七层暗门注释自动生成</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">annotate-validator.mjs</span>
-        <span class="script-desc">注释验证器，暗门注释完整性 + 格式校验</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">build-skill-registry.cjs</span>
-        <span class="script-desc">技能注册表构建，扫描所有 Skill 生成索引</span>
-      </div>
-      <div class="script-item">
-        <span class="script-name">plan-preview.cjs</span>
-        <span class="script-desc">计划预览，步骤级执行计划可视化</span>
-      </div>
-      <div class="script-item">
         <span class="script-name">work-estimator.cjs</span>
         <span class="script-desc">工作量估算，任务复杂度 + 文件数 + Token 预估</span>
       </div>
@@ -1103,17 +995,6 @@ body::before{
     <div class="dep-card">
       <h4 style="color:var(--teal)">基础设施 · 注入链</h4>
       <div class="flow" style="margin-bottom:10px;">
-        <span class="node core">kf-model-router</span>
-        <span class="arrow">→</span>
-        <span class="node derive">safe-router.cjs</span>
-        <span class="arrow">→</span>
-        <span class="node derive">circuit-breaker.cjs</span>
-        <span class="arrow">→</span>
-        <span class="node derive">rate-limiter.cjs</span>
-        <span class="arrow">→</span>
-        <span class="node derive">degradation-chain.cjs</span>
-      </div>
-      <div class="flow" style="margin-bottom:10px;">
         <span class="node core">tokenforge</span>
         <span class="arrow">→</span>
         <span class="node derive">tokenforge-hook.cjs</span>
@@ -1122,36 +1003,18 @@ body::before{
         <span class="arrow">→</span>
         <span class="node" style="font-size:10px">Bash 输出压缩</span>
       </div>
-      <div class="flow" style="margin-bottom:10px;">
-        <span class="node core">lambda-lang</span>
-        <span class="arrow">→</span>
-        <span class="node derive">lambda-a2a.cjs</span>
-        <span class="arrow">→</span>
-        <span class="node" style="font-size:10px">Agent 间通信</span>
-      </div>
       <div class="flow">
-        <span class="node core">CCP</span>
+        <span class="node core">kf-model-router</span>
         <span class="arrow">→</span>
-        <span class="node derive">ccp-smart-dispatch.cjs</span>
-        <span class="arrow">+</span>
-        <span class="node derive">ccswitch.cjs</span>
-        <span class="arrow">+</span>
-        <span class="node derive">smart-dispatcher.cjs</span>
+        <span class="node derive">routing-engine.cjs</span>
+        <span class="arrow">→</span>
+        <span class="node" style="font-size:10px">语义分类 + 加权评分路由</span>
       </div>
     </div>
 
     <!-- 脚本支撑链 -->
     <div class="dep-card">
       <h4 style="color:var(--amber)">脚本引擎 · 支撑链</h4>
-      <div class="flow" style="margin-bottom:10px;">
-        <span class="node core">hook-handler.cjs</span>
-        <span class="arrow">→</span>
-        <span class="node derive">token-tracker.cjs</span>
-        <span class="arrow">→</span>
-        <span class="node derive">cost-tracker.cjs</span>
-        <span class="arrow">→</span>
-        <span class="node derive">kf-monitor-bridge.cjs</span>
-      </div>
       <div class="flow" style="margin-bottom:10px;">
         <span class="node core">quality-signals.cjs</span>
         <span class="arrow">→</span>

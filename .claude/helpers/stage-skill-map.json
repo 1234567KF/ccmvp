@@ -13,7 +13,7 @@
     "1": {
       "name": "方案评审 / 架构设计",
       "description": "技术调研、多方案比选、架构决策、降级链设计",
-      "required": ["kf-alignment", "kf-web-search", "kf-exa-code"],
+      "required": ["kf-alignment", "kf-web-search"],
       "recommended": ["kf-scrapling", "kf-opencli"],
       "contextual": ["kf-spec", "kf-grant-research"],
       "agent_skills": {
@@ -29,8 +29,8 @@
       "name": "编码实现",
       "description": "功能实现、UI 原型、结构化提取",
       "required": ["kf-spec", "kf-mvp"],
-      "recommended": ["kf-image-editor", "kf-exa-code", "kf-langextract", "kf-evolution"],
-      "contextual": ["kf-ui-prototype-generator"],
+      "recommended": [],
+      "contextual": [],
       "agent_skills": {
         "前端专家": ["react-expert", "vue-expert", "angular-architect", "nextjs-developer", "typescript-pro", "flutter-expert", "javascript-pro", "react-native-expert", "vue-expert-js"],
         "后端专家": ["python-pro", "golang-pro", "java-architect", "fastapi-expert", "django-expert", "spring-boot-engineer", "nestjs-expert", "rust-engineer", "cpp-pro", "csharp-developer", "kotlin-specialist", "php-pro", "rails-expert", "dotnet-core-expert", "laravel-specialist", "swift-expert", "embedded-systems", "game-developer"],
@@ -66,17 +66,17 @@
       "name": "汇总交付",
       "description": "方案融合、文档输出、最终产物交付",
       "required": [],
-      "recommended": ["kf-image-editor", "kf-langextract"],
-      "contextual": ["kf-ui-prototype-generator", "code-documenter", "spec-miner"],
+      "recommended": [],
+      "contextual": ["code-documenter", "spec-miner"],
       "agent_skills": {}
     }
   },
   "always_on_skills": {
     "description": "所有阶段始终可用，不依赖阶段路由表",
-    "skills": ["kf-go", "kf-model-router", "kf-saver", "kf-monitor", "kf-token-tracker", "lambda-lang", "claude-code-pro"]
+    "skills": ["kf-go", "kf-model-router"]
   },
   "global_skills": {
     "description": "所有阶段按 agent_for 角色可用",
-    "skills": ["kf-go", "kf-add-skill", "kf-doc-consistency", "kf-web-search", "kf-exa-code"]
+    "skills": ["kf-go", "kf-add-skill", "kf-web-search"]
   }
 }

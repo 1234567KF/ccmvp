@@ -59,7 +59,7 @@
       "id": "model_switch",
       "name": "模型切换（Pro↔Flash）",
       "description": "model-router 将简单任务路由到 flash 模型（¥1/M）而非 pro 模型（¥3/M）。属于价格优化，非 Token 优化。",
-      "source": "skills/kf-model-router/model-router-hook.cjs",
+      "source": "",
       "measurable": true,
       "measurement": "flash 调用数 × (pro 单价 - flash 单价)",
       "exclude_from_savings": true,

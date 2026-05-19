@@ -3,7 +3,7 @@
  * perf-tracker.cjs v1.0 — MVP 执行追踪面板
  *
  * 追踪 per-conversation-turn + per-A2A-message 的模型、Token、优化节省。
- * 数据存储于 .claude-flow/perf/，与 token-tracker 的 skill-traces 隔离。
+ * 数据存储于 .claude-flow/perf/。
  *
  * 用法:
  *   log-turn  记录一次人机对话轮次

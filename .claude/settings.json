@@ -8,11 +8,6 @@
                         "type": "command",
                         "command": "node .claude/helpers/perf/perf-auto-log.cjs",
                         "timeout": 3000
-                    },
-                    {
-                        "type": "command",
-                        "command": "node .claude/helpers/model-router-hook.cjs",
-                        "timeout": 5000
                     }
                 ]
             },
@@ -63,11 +58,6 @@
                         "type": "command",
                         "command": "node .claude/hooks/gate-keeper.cjs",
                         "timeout": 5000
-                    },
-                    {
-                        "type": "command",
-                        "command": "node .claude/helpers/token-tracker.cjs pre-tool",
-                        "timeout": 3000
                     }
                 ]
             }
